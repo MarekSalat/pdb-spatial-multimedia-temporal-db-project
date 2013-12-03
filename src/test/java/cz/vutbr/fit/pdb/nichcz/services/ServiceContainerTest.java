@@ -1,7 +1,11 @@
 package cz.vutbr.fit.pdb.nichcz.services;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.io.IOException;
 
@@ -10,7 +14,11 @@ import java.io.IOException;
  * Date: 7.10.13
  * Time: 16:49
  */
+@RunWith(JUnit4.class)
 public class ServiceContainerTest {
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void showcaseTest() throws IOException {
@@ -56,5 +64,9 @@ public class ServiceContainerTest {
         // try to close container, it should close all services
         sc.close();
         Assert.assertTrue("service should be closed", mockService.closed);
+
+        // service container should be closed only once
+        exception.expect(ServiceCloseException.class);
+        sc.close();
     }
 }

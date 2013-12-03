@@ -1,9 +1,14 @@
 package cz.vutbr.fit.pdb.nichcz.context;
 
+import cz.vutbr.fit.pdb.nichcz.services.Service;
 import cz.vutbr.fit.pdb.nichcz.services.ServiceContainer;
 import cz.vutbr.fit.pdb.nichcz.services.ServiceContainerLoader;
+import cz.vutbr.fit.pdb.nichcz.services.ServiceFactory;
+import cz.vutbr.fit.pdb.nichcz.services.impl.ConnectionService;
 import cz.vutbr.fit.pdb.nichcz.setting.Setting;
 import cz.vutbr.fit.pdb.nichcz.setting.SettingLoader;
+
+import java.util.logging.Logger;
 
 /**
  * User: Marek Salát
@@ -11,7 +16,25 @@ import cz.vutbr.fit.pdb.nichcz.setting.SettingLoader;
  * Time: 22:32
  */
 public class Context {
-    public Setting setting = new AppSettingLoader().load();
+    public Setting setting;
+    public ServiceContainer services;
+    public Logger log = Logger.getLogger("PDB");
+
+    public Context load(){
+        setting = new AppSettingLoader().load();
+        services = new AppServiceContainerLoader().load();
+        return this;
+    }
+
+    public void close() {
+        this.services.close();
+        System.out.println("Context was closed successfully.");
+    }
+
+    public boolean isUserLogged(){
+        return setting.user.logged;
+    }
+
     private class AppSettingLoader implements SettingLoader {
         @Override
         public Setting load() {
@@ -26,7 +49,6 @@ public class Context {
         }
     }
 
-    public ServiceContainer services = new AppServiceContainerLoader().load();
     private class AppServiceContainerLoader implements ServiceContainerLoader {
 
         @Override
@@ -35,6 +57,18 @@ public class Context {
             // ... initialization
             // sc.addService("xxx", new XXXServiceFactory());
             // ...
+
+            sc.addService("connection", new ServiceFactory() {
+                @Override
+                public Service create() {
+                    Context ctx = Context.this;
+                    if(!ctx.isUserLogged())
+                        throw new RuntimeException("Connection can not be create, because required credential has not been filled yet.");
+
+                    return new ConnectionService(ctx);
+                }
+            });
+
             return sc;
         }
     }

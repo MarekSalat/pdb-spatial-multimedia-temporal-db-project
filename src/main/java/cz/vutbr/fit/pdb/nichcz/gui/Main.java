@@ -1,8 +1,14 @@
 package cz.vutbr.fit.pdb.nichcz.gui;
 
-import cz.vutbr.fit.pdb.nichcz.gui.forms.LoginForm;
+import cz.vutbr.fit.pdb.nichcz.context.Context;
+import cz.vutbr.fit.pdb.nichcz.gui.dialogs.LoginDialog;
+import cz.vutbr.fit.pdb.nichcz.gui.spatial.SpatialTabComponent;
+import cz.vutbr.fit.pdb.nichcz.setting.Environment;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * User: Marek Salát
@@ -10,23 +16,52 @@ import javax.swing.*;
  * Time: 17:01
  */
 public class Main {
-
+    private static Context ctx = new Context();
     public static void main(String[] args) {
+        Environment.context = ctx;
+
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                createAndShowGUI();
+                createAndShowGUI(ctx.load());
             }
         });
     }
 
-    private static void createAndShowGUI() {
+    private static void createAndShowGUI(final Context ctx) {
         initLookAndFeel();
 
         JFrame frame = new JFrame("PDB");
-        frame.setContentPane(new LoginForm().getPanel() );
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Spatial", new SpatialTabComponent(ctx));
+        tabbedPane.addTab("Multimedia", new JButton());
+
+        frame.setContentPane(tabbedPane);
+
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent winEvt) {
+                ctx.close();
+                System.exit(0);
+            }
+        });
+
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        Dimension d = new Dimension(
+            ctx.setting.window.maxX * ctx.setting.window.zoom,
+            ctx.setting.window.maxY * ctx.setting.window.zoom
+        );
+        frame.setPreferredSize(d);
+        frame.setSize(d);
+        frame.setMinimumSize(d);
         frame.setVisible(true);
+        frame.pack();
+
+        System.out.println(ctx.setting.user);
+
+        if(ctx.isUserLogged()) return;
+
+        LoginDialog loginDialog = new LoginDialog(frame, ctx);
+        loginDialog.setVisible(true);
     }
 
     private static void initLookAndFeel() {

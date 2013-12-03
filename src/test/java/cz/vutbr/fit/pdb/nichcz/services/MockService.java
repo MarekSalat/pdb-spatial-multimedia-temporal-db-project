@@ -1,11 +1,13 @@
 package cz.vutbr.fit.pdb.nichcz.services;
 
+
 /**
  * User: Marek Salát
  * Date: 7.10.13
  * Time: 16:52
  */
 public class MockService implements Service{
+
 
     int created = 0;
     boolean closed = false;

@@ -2,7 +2,6 @@ package cz.vutbr.fit.pdb.nichcz.services;
 
 import sun.plugin.dom.exception.InvalidStateException;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -13,8 +12,8 @@ import java.util.TreeMap;
  */
 public class ServiceContainer implements Service{
 
-    private Map<String, ServiceFactory> registered = new TreeMap<String, ServiceFactory>();
-    private Map<String, Service> created = new TreeMap<String, Service>();
+    private Map<String, ServiceFactory> registered = new TreeMap<>();
+    private Map<String, Service> created = new TreeMap<>();
 
     public boolean hasServices(String name){
         return registered.containsKey(name) ;
@@ -31,7 +30,7 @@ public class ServiceContainer implements Service{
         this.registered.put(name, service);
     }
 
-    public Service get(String name){
+    public Service get(String name) {
         if(isCreated(name))
             return created.get(name);
 
@@ -48,13 +47,24 @@ public class ServiceContainer implements Service{
         }
     }
 
+    private boolean isClosed = false;
     @Override
-    public void close() throws IOException {
+    public void close() {
+        if(isClosed) throw new ServiceCloseException("ServiceContainer cannot be closed twice.");
+
+        isClosed = true;
+
         for(Map.Entry<String, Service> entry : created.entrySet()) {
             String name = entry.getKey();
             Service service = entry.getValue();
 
-            service.close();
+            try {
+                service.close();
+                System.out.println("Service " + name + " was closed successfully.");
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                throw new ServiceCloseException("Service can not be closed.", e);
+            }
         }
     }
 }
