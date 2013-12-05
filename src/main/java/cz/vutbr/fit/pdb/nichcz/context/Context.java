@@ -61,11 +61,7 @@ public class Context {
             sc.addService("connection", new ServiceFactory() {
                 @Override
                 public Service create() {
-                    Context ctx = Context.this;
-                    if(!ctx.isUserLogged())
-                        throw new RuntimeException("Connection can not be create, because required credential has not been filled yet.");
-
-                    return new ConnectionService(ctx);
+                    return new ConnectionService(Context.this);
                 }
             });
 

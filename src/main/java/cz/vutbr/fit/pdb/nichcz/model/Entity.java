@@ -7,4 +7,5 @@ package cz.vutbr.fit.pdb.nichcz.model;
  */
 public interface Entity<PK> {
     public PK getId();
+    public String getTable();
 }

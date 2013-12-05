@@ -26,6 +26,10 @@ public class ConnectionService implements Service {
     public Connection getConnection(){
         if(conn != null) return conn;
 
+        if(!ctx.isUserLogged())
+            throw new RuntimeException("Connection can not be create, because required credential has not been filled yet.");
+
+
         try {
             ods = new OracleDataSource();
             ods.setURL("jdbc:oracle:thin:@berta.fit.vutbr.cz:1522:dbfit");
@@ -33,7 +37,7 @@ public class ConnectionService implements Service {
             ods.setPassword(ctx.setting.user.password);
             conn = ods.getConnection();
         } catch (SQLException e) {
-            throw new ServiceCreatingException("Service connection exception.",
+            throw new ServiceCreatingException("Service getConnection exception.",
                     new CreateDBconnectionException("Connection can not be established", e)
             );
         }
@@ -43,6 +47,7 @@ public class ConnectionService implements Service {
 
     @Override
     public void close() throws Exception {
+        if(conn == null) return;
         conn.close();
     }
 }

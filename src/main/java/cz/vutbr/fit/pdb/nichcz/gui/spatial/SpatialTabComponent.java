@@ -3,6 +3,8 @@ package cz.vutbr.fit.pdb.nichcz.gui.spatial;
 import cz.vutbr.fit.pdb.nichcz.context.Context;
 import cz.vutbr.fit.pdb.nichcz.gui.BaseComponent;
 import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.*;
+import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialDBMapper;
+import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialEntity;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -20,6 +22,7 @@ public class SpatialTabComponent extends BaseComponent{
     private Color color;
 
     private CompositeDrawable draggable = new CompositeDrawable();
+    private SpatialDBMapper mapper;
 
     public SpatialTabComponent(Context ctx) {
         super(ctx);
@@ -44,6 +47,8 @@ public class SpatialTabComponent extends BaseComponent{
 
         draggable.addArea(c1);
         draggable.addArea(c2);
+
+        mapper = new SpatialDBMapper(ctx);
     }
 
     public class Listener extends MouseAdapter{
@@ -114,9 +119,24 @@ public class SpatialTabComponent extends BaseComponent{
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        draggable.draw(g2);
 
-        g2.setColor(Color.BLACK);
-        g2.draw(draggable.getBounds2D());
+//        Path2D path2D = new Path2D.Double();
+//        path2D.moveTo(50, 50);
+//        path2D.lineTo(100, 50);
+//        path2D.lineTo(125, 25);
+//        path2D.moveTo(100, 50);
+//        path2D.lineTo(125, 75);
+//
+//        g2.draw(path2D);
+
+//        draggable.draw(g2);
+//
+//        g2.setColor(Color.BLACK);
+//        g2.draw(draggable.getBounds2D());
+
+        SpatialEntity e = mapper.findById(Long.valueOf(42));
+
+        g2.draw(e.getGeometry());
+
     }
 }

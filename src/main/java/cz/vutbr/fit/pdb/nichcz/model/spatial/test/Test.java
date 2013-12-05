@@ -2,6 +2,8 @@ package cz.vutbr.fit.pdb.nichcz.model.spatial.test;
 
 import cz.vutbr.fit.pdb.nichcz.model.Entity;
 
+import java.util.UUID;
+
 /**
  * User: Marek Salát
  * Date: 3.12.13
@@ -10,14 +12,26 @@ import cz.vutbr.fit.pdb.nichcz.model.Entity;
 public class Test implements Entity<Integer> {
     public static final String TABLE = "TABLE_TEST";
 
+    public Integer id;
     public int c1;
     public String c2 ;
 
-    public Integer id;
+    public Test() {
+        this.id = Long.valueOf(UUID.randomUUID().getMostSignificantBits()).intValue();
+    }
 
     @Override
     public Integer getId() {
         return id;
+    }
+
+    @Override
+    public String getTable() {
+        return this.TABLE;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public int getC1() {

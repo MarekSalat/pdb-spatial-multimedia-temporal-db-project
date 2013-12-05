@@ -1,17 +1,14 @@
 package cz.vutbr.fit.pdb.nichcz.model.spatial.test;
 
 import cz.vutbr.fit.pdb.nichcz.context.Context;
-import cz.vutbr.fit.pdb.nichcz.model.Mapper;
-import cz.vutbr.fit.pdb.nichcz.services.impl.ConnectionService;
+import cz.vutbr.fit.pdb.nichcz.model.AbstractDBMapper;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * User: Marek Salát
@@ -42,30 +39,17 @@ import java.util.UUID;
  System.out.println(e2);
 
  */
-public class TestDBMapper implements Mapper<Test, Integer> {
-    protected Context ctx;
-
-    protected ConnectionService connectionService;
+public class TestDBMapper extends AbstractDBMapper<Test, Integer> {
 
     public TestDBMapper(Context ctx) {
-        this.ctx = ctx;
-        this.connectionService = (ConnectionService) ctx.services.get("connection");
-    }
-
-    private Connection con;
-    protected Connection connection(){
-        if(con == null)
-            con = connectionService.getConnection();
-        return con;
+        super(ctx);
     }
 
     @Override
     public Test create() {
         Test entity = new Test();
 
-        entity.id = Long.valueOf(UUID.randomUUID().getMostSignificantBits()).intValue();
-
-        try ( PreparedStatement stmt = connection()
+        try ( PreparedStatement stmt = getConnection()
                 .prepareStatement("insert into " + Test.TABLE + " (id, c1, c2) VALUES ( ?, ?, ? )");
         ){
             stmt.setInt(1, entity.getId());
@@ -79,7 +63,7 @@ public class TestDBMapper implements Mapper<Test, Integer> {
 
     @Override
     public void save(Test entity) {
-        try ( PreparedStatement stmt = connection()
+        try ( PreparedStatement stmt = getConnection()
                 .prepareStatement("update " + Test.TABLE + " set c1=?, c2=? where id=?");
         ){
             stmt.setInt( 1, entity.getC1() );
@@ -91,7 +75,7 @@ public class TestDBMapper implements Mapper<Test, Integer> {
 
     @Override
     public void delete(Test entity) {
-        try ( PreparedStatement stmt = connection().prepareStatement("delete from " + Test.TABLE + " where id = ?")){
+        try ( PreparedStatement stmt = getConnection().prepareStatement("delete from " + Test.TABLE + " where id = ?")){
             stmt.setInt(1, entity.getId());
             stmt.execute();
         } catch (SQLException e) { throw new RuntimeException(e); }
@@ -114,13 +98,14 @@ public class TestDBMapper implements Mapper<Test, Integer> {
 
         List<Test> res = new ArrayList<>();
         try (
-            ResultSet rset = connection().prepareStatement("select * from " + Test.TABLE + " " + where).executeQuery();
+            ResultSet rset = getConnection().prepareStatement("select * from " + Test.TABLE + " " + where).executeQuery();
         ){
             while (rset.next()) {
                 Test e = new Test();
-                e.id = rset.getInt("id");
-                e.c1 = rset.getInt("c1");
-                e.c2 = rset.getString("c2");
+
+                e.setId(rset.getInt("id"));
+                e.setC1(rset.getInt("c1"));
+                e.setC2(rset.getString("c2"));
 
                 res.add(e);
             }
