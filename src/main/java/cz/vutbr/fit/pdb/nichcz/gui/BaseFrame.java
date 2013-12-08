@@ -9,14 +9,14 @@ import javax.swing.*;
  * Date: 6.10.13
  * Time: 17:10
  */
-public abstract class BaseComponent extends JPanel {
+public abstract class BaseFrame extends JFrame {
     protected Context context;
 
-    public BaseComponent(){
+    public BaseFrame(){
         super();
     }
 
-    public BaseComponent(Context ctx) {
+    public BaseFrame(Context ctx) {
         this();
         this.context = ctx;
     }

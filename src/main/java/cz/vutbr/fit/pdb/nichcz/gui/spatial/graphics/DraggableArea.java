@@ -9,11 +9,10 @@ import java.awt.geom.Area;
 * Date: 1.12.13
 * Time: 16:53
 */
-public class DraggableArea extends Area implements Draggable, Drawable, Selectable {
+public abstract class DraggableArea extends Area implements Draggable, Drawable, Selectable {
     protected AffineTransform at = new AffineTransform();
 
     boolean isSelected = false;
-    Color color = new Color(60, 90, 238);
 
     public DraggableArea() {
         super();
@@ -25,10 +24,9 @@ public class DraggableArea extends Area implements Draggable, Drawable, Selectab
         this.transform(at);
     }
 
-    @Override
-    public void draw(Graphics2D g2) {
-        g2.setColor(!isSelected ? color : Color.RED);
-        g2.fill(this);
+    public DraggableArea(Area a) {
+        super(a);
+        this.transform(at);
     }
 
     @Override
@@ -45,5 +43,17 @@ public class DraggableArea extends Area implements Draggable, Drawable, Selectab
     @Override
     public void onUnselected() {
         isSelected = false;
+    }
+
+    public boolean isSelected(){
+        return  isSelected;
+    }
+
+    public AffineTransform getAt() {
+        return at;
+    }
+
+    public void setAt(AffineTransform at) {
+        this.at = at;
     }
 }

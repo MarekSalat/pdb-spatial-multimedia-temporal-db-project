@@ -1,142 +1,165 @@
 package cz.vutbr.fit.pdb.nichcz.gui.spatial;
 
 import cz.vutbr.fit.pdb.nichcz.context.Context;
-import cz.vutbr.fit.pdb.nichcz.gui.BaseComponent;
-import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.*;
+import cz.vutbr.fit.pdb.nichcz.gui.BaseFrame;
+import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.SpatialEntityForm;
+import cz.vutbr.fit.pdb.nichcz.model.spatial.Point2DShape;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialDBMapper;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialEntity;
 
+import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 
 /**
  * User: Marek Salát
- * Date: 27.11.13
- * Time: 16:12
+ * Date: 8.12.13
+ * Time: 13:29
  */
-public class SpatialTabComponent extends BaseComponent{
+public class SpatialTabComponent extends BaseFrame {
+    private JPanel root;
+    private SpatialCanvas canvas;
+    private SpatialEntityForm entityForm;
+    private JButton newButton;
+    private JComboBox typeComboBox;
+    private JButton saveAllButton;
+
+    private Point2D lastPosition = new Point2D.Double();
 
 
-    private Color color;
-
-    private CompositeDrawable draggable = new CompositeDrawable();
     private SpatialDBMapper mapper;
 
     public SpatialTabComponent(Context ctx) {
         super(ctx);
-        Listener listener = new Listener();
-        addMouseMotionListener(listener);
-        addMouseListener(listener);
+        setContentPane(root);
+        saveAllButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAll();
+            }
+        });
+        newButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                entityNew();
+            }
+        });
 
-        color = new Color(60, 90, 238);
-
-        CompositeDrawable c1 = new CompositeDrawable();
-        CompositeDrawable c2 = new CompositeDrawable();
-
-        for(int i = 0; i <= 5; i++){
-            c1.addArea(new DraggableArea(
-                new Ellipse2D.Double(Math.random() * 600, Math.random() * 400, 8, 8)
-            ));
-
-            c2.addArea(new DraggableArea(
-                    new Ellipse2D.Double(Math.random() * 600, Math.random() * 400, 8, 8)
-            ));
+        for (SpatialEntity entity : mapper.findAll()) {
+            canvas.addEntity(entity);
         }
 
-        draggable.addArea(c1);
-        draggable.addArea(c2);
-
-        mapper = new SpatialDBMapper(ctx);
+        canvas.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                lastPosition.setLocation(e.getPoint());
+                System.out.println(e.getPoint());
+            }
+        });
     }
 
-    public class Listener extends MouseAdapter{
-        private Point start = new Point();
-        private Selectable selected = null;
-        private boolean isDragged = false;
-        private boolean isDraggedEverything = false;
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            super.mousePressed(e);
-
-            if(selected != null) selected.onUnselected();
-
-            Drawable shape = draggable.getIntersectedDrawable(e.getX(), e.getY());
-            if(shape == null || shape == draggable) return;
-
-            if(shape instanceof Selectable){
-                selected = (Selectable) shape;
-                selected.onSelected();
-            }
-
-            if(shape instanceof Draggable) {
-                isDragged = true;
-                start.setLocation(e.getPoint());
-
-                if(e.getButton() == 3) {
-                    selected.onUnselected();
-                    selected = draggable;
-                    selected.onSelected();
-                    isDraggedEverything = true;
-                }
-            }
-
-            repaint();
-        }
-
-        Point delta = new Point();
-        @Override
-        public void mouseDragged(MouseEvent e) {
-            super.mouseDragged(e);
-            if(!isDragged || selected == null || !(selected instanceof Draggable))
-                return;
-
-            delta.setLocation(e.getX() - start.getX(), e.getY() - start.getY());
-
-            ((Draggable)selected).onDragged(delta);
-            draggable.reset();
-
-            start.setLocation(e.getPoint());
-            repaint();
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            super.mouseReleased(e);
-
-            isDragged = false;
-            isDraggedEverything = false;
-            repaint();
+    private void saveAll() {
+        for(SpatialEntity entity : canvas.entities){
+            mapper.save(entity);
         }
     }
 
-    @Override
-    public void paint(Graphics graphics){
-        super.paint(graphics);
-        Graphics2D g2 = (Graphics2D) graphics;
+    private void entityNew() {
+        SpatialEntity.TYPE type = SpatialEntity.TYPE.valueOf(typeComboBox.getSelectedItem().toString());
 
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Shape shape;
+        int x = (int) lastPosition.getX();
+        int y = (int) lastPosition.getY();
+        switch (type) {
+            // polygons
+            case FOREST:
+            case WATER:
+            case LOGGING_AREA:
+            case FIELD:
+                Polygon p = new Polygon();
+                p.addPoint(x, y);
+                p.addPoint(x+50, y);
+                p.addPoint(x+50, y+50);
+                shape = p;
+                break;
+            // lines
+            case TRACK:
+            case STREAM:
+                Path2D p2 = new Path2D.Double();
+                p2.moveTo(x, y);
+                p2.lineTo(x+50, y+50);
+                p2.lineTo(x+50, y-50);
+                shape = p2;
+                break;
+            // circles
+            case HUNTING_AREA:
+                shape = new Ellipse2D.Double(x, y, 50, 50);
+                break;
+            // points
+            case VIEW:
+            case FEEDING_RACK:
+            case UNKNOWN:
+            default:
+                shape = new Point2DShape(x, y);
+                break;
+        }
 
+        SpatialEntity entity = mapper.create();
+        entity.setObjectType(type);
+        entity.setGeometry(shape);
+        mapper.save(entity);
 
-//        Path2D path2D = new Path2D.Double();
-//        path2D.moveTo(50, 50);
-//        path2D.lineTo(100, 50);
-//        path2D.lineTo(125, 25);
-//        path2D.moveTo(100, 50);
-//        path2D.lineTo(125, 75);
-//
-//        g2.draw(path2D);
+        canvas.addEntity(entity);
+        canvas.repaint();
+        entitySelected(entity);
+    }
 
-//        draggable.draw(g2);
-//
-//        g2.setColor(Color.BLACK);
-//        g2.draw(draggable.getBounds2D());
+    public SpatialDBMapper getMapper(){
+        if(mapper != null) return mapper;
+        mapper = new SpatialDBMapper(getContext());
+        return mapper;
+    }
 
-        SpatialEntity e = mapper.findById(Long.valueOf(42));
+    private void createUIComponents() {
+        canvas = new SpatialCanvas(getContext(), getMapper());
+        canvas.addListener(new SpatialCanvas.SelectedListener() {
+            @Override
+            public void onSelected(SpatialEntity entity) {
+                entitySelected(entity);
+            }
 
-        g2.draw(e.getGeometry());
+            @Override
+            public void onUnselected(SpatialEntity entity) {
+                entityUnselected(entity);
+            }
+        });
 
+        entityForm = new SpatialEntityForm(getContext(), getMapper());
+        entityForm.addListener(new SpatialEntityForm.OnDeleteListener() {
+            @Override
+            public void onDelete(SpatialEntity entity) {
+                entityOnDeleted(entity);
+            }
+        });
+    }
+
+    private void entityOnDeleted(SpatialEntity entity) {
+        canvas.removeEntity(entity);
+        canvas.repaint();
+    }
+
+    private void entitySelected(SpatialEntity entity) {
+        entityForm.setEntity(entity);
+    }
+
+    private void entityUnselected(SpatialEntity entity) {
+        entityForm.setEntity(null);
     }
 }

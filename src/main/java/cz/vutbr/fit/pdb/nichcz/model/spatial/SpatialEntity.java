@@ -13,6 +13,23 @@ import java.util.UUID;
  * Date: 3.12.13
  * Time: 18:03
  *
+ *
+ CREATE TABLE PDB_SPATIAL
+ (
+     ID VARCHAR2(64) PRIMARY KEY NOT NULL,
+     OBJECT_TYPE VARCHAR2(16),
+     CATEGORY nvarchar2(32),
+     GEOMETRY varchar2(4000),
+     NAME nvarchar2(32),
+     ADMIN nvarchar2(32),
+     OWNER nvarchar2(32),
+     NOTE nvarchar2(512),
+     VALID_FROM DATE NOT NULL,
+     VALID_TO DATE,
+     MODIFIED DATE,
+     SPECIAL_FIELD INTEGER
+ );
+ *
  */
 public class SpatialEntity implements Entity<Long>{
     public static String TABLE="PDB_SPATIAL";

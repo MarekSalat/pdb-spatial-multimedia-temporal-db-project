@@ -59,7 +59,8 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
             int i=1;
             stmt.setString(i++, String.valueOf(e.getObjectType()));
             stmt.setString(i++, e.getCategory());
-            stmt.setObject(i++, JGeometry.store( getConnection(), shape2jGeometry(e.getGeometry()) )  );
+            JGeometry jGeometry = shape2jGeometry(e.getGeometry(), e.getObjectType());
+            stmt.setObject(i++,  jGeometry != null ? JGeometry.store(getConnection(), jGeometry) : null);
             stmt.setString(i++, e.getName());
             stmt.setString(i++, e.getAdmin());
             stmt.setString(i++, e.getOwner());
@@ -127,7 +128,6 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
         return res;
     }
 
-    // TODO: GTYPE_POINT
     public static Shape jGeometry2shape(JGeometry jGeometry) {
         Shape shape;
         switch (jGeometry.getType()) {
@@ -147,6 +147,38 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
                 throw new RuntimeException("Unsupported JGeometry type " + jGeometry.getType());
         }
         return shape;
+    }
+
+    public static JGeometry shape2jGeometry(Shape s, SpatialEntity.TYPE t){
+        if(s == null || t == SpatialEntity.TYPE.UNKNOWN) return null;
+        switch (t){
+            // polygons
+            case FOREST:
+            case WATER:
+            case LOGGING_AREA:
+            case FIELD:
+                return polygon2jGeometry(s);
+
+            // lines
+            case TRACK:
+            case STREAM:
+                return path2jGeometry(new Path2D.Double(s));
+
+            // circles
+            case HUNTING_AREA:
+                return ellipse2jGeometry((Ellipse2D) s);
+
+            // points
+            case VIEW:
+            case FEEDING_RACK:
+                if(s instanceof Ellipse2D){
+                    Ellipse2D el = (Ellipse2D) s;
+                    return point2jGeometry(new Point2DShape(el.getCenterX(), el.getCenterY()));
+                }
+                return point2jGeometry((Point2DShape) s);
+            default:
+                return shape2jGeometry(s);
+        }
     }
 
     public static JGeometry shape2jGeometry(Shape s) {
@@ -209,7 +241,7 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
 
     // TODO: only circles are supported now
     public static JGeometry ellipse2jGeometry(Ellipse2D e){
-        return JGeometry.createCircle(e.getCenterX(), e.getY(), e.getWidth(), SRID);
+        return JGeometry.createCircle(e.getCenterX(), e.getCenterY(), e.getWidth()/2, SRID);
     }
 }
 

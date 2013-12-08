@@ -33,7 +33,7 @@ public class Main {
         JFrame frame = new JFrame("PDB");
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Spatial", new SpatialTabComponent(ctx));
+        tabbedPane.addTab("Spatial", new SpatialTabComponent(ctx).getContentPane());
         tabbedPane.addTab("Multimedia", new JButton());
 
         frame.setContentPane(tabbedPane);

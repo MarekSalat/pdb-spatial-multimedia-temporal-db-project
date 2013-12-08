@@ -1,5 +1,6 @@
 package cz.vutbr.fit.pdb.nichcz.setting;
 
+import java.awt.*;
 import java.io.Serializable;
 
 /**
@@ -94,9 +95,17 @@ public class Setting implements Serializable {
         wet_asphalt( 0x34495e),
         midnight_blue( 0x2c3e50)
         ;
-        private int hex;
+        private Color color;
         Colors(int hex){
-            this.hex = hex;
+            color = new Color(hex);
+        }
+
+        public int getRGB(){
+            return color.getRGB();
+        }
+
+        public Color getColor() {
+            return new Color(color.getRed(), color.getGreen(), color.getBlue(), 196);
         }
     }
 }
