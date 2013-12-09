@@ -1,10 +1,7 @@
 package cz.vutbr.fit.pdb.nichcz.gui.spatial;
 
 import cz.vutbr.fit.pdb.nichcz.context.Context;
-import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.Draggable;
-import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.DraggableContainer;
-import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.Drawable;
-import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.Selectable;
+import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.*;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialDBMapper;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialEntity;
 
@@ -111,13 +108,13 @@ public class SpatialCanvas extends JPanel {
         private Selectable selected = null;
         private boolean isDragged = false;
 
-        private void selelct(Selectable s){
+        private void select(Selectable s){
             s.onSelected();
             if(s instanceof SpatialEntityCanvasItem)
                 onCanvasItemSelected((SpatialEntityCanvasItem) s);
         }
 
-        private void unselelct(Selectable s){
+        private void unselect(Selectable s){
             s.onUnselected();
             if(s instanceof SpatialEntityCanvasItem)
                 onCanvasItemUnselected((SpatialEntityCanvasItem) s);
@@ -127,14 +124,45 @@ public class SpatialCanvas extends JPanel {
         public void mousePressed(MouseEvent e) {
             super.mousePressed(e);
 
-            if (selected != null) unselelct(selected);
+            if(e.getButton() == 3 && selected != null && selected instanceof Manipulator.Hook){
+                Manipulator.Hook hook = (Manipulator.Hook) selected;
+                hook.getManipulator().addPointAfter(hook, e.getPoint());
+                repaint();
+                return;
+            }
+
+            if(e.getButton() == 2 && selected != null && selected instanceof Manipulator.Hook){
+                Manipulator.Hook hook = (Manipulator.Hook) selected;
+                hook.getManipulator().removePointAt(hook);
+                repaint();
+                return;
+            }
+
+            if(e.getButton() == 3 && selected != null && selected instanceof SpatialEntityCanvasItem){
+                SpatialEntityCanvasItem i = (SpatialEntityCanvasItem) selected;
+                i.getManipulator().addSegmentAt(e.getPoint());
+                repaint();
+                return;
+            }
+
+            if(e.getButton() == 2 && selected != null && selected instanceof SpatialEntityCanvasItem){
+                SpatialEntityCanvasItem i = (SpatialEntityCanvasItem) selected;
+                removeEntity(i.getEntity());
+                mapper.delete(i.getEntity());
+                repaint();
+                return;
+            }
+
+            if(e.getButton() != 1) return;
+
+            if (selected != null) unselect(selected);
 
             Drawable shape = getIntersectedDrawable(e.getX(), e.getY());
             if (shape == null) return;
 
             if (shape instanceof Selectable) {
                 selected = (Selectable) shape;
-                selelct(selected);
+                select(selected);
             }
 
             if (shape instanceof Draggable) {
@@ -172,6 +200,8 @@ public class SpatialCanvas extends JPanel {
         @Override
         public void mouseReleased(MouseEvent e) {
             super.mouseReleased(e);
+
+            if(e.getButton() != 1) return;
 
             isDragged = false;
             repaint();

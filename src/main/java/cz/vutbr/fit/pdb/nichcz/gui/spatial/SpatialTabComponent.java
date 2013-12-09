@@ -60,7 +60,6 @@ public class SpatialTabComponent extends BaseFrame {
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
                 lastPosition.setLocation(e.getPoint());
-                System.out.println(e.getPoint());
             }
         });
     }

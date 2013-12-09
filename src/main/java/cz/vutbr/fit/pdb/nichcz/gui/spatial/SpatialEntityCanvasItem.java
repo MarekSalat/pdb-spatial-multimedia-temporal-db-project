@@ -86,4 +86,8 @@ public class SpatialEntityCanvasItem extends DraggableArea {
     public void setSpatialEntity(SpatialEntity spatialEntity) {
         this.spatialEntity = spatialEntity;
     }
+
+    public Manipulator getManipulator() {
+        return manipulator;
+    }
 }
