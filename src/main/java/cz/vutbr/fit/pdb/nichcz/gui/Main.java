@@ -2,6 +2,7 @@ package cz.vutbr.fit.pdb.nichcz.gui;
 
 import cz.vutbr.fit.pdb.nichcz.context.Context;
 import cz.vutbr.fit.pdb.nichcz.gui.dialogs.LoginDialog;
+import cz.vutbr.fit.pdb.nichcz.gui.media.MultimediaTabComponent;
 import cz.vutbr.fit.pdb.nichcz.gui.spatial.SpatialTabComponent;
 import cz.vutbr.fit.pdb.nichcz.setting.Environment;
 
@@ -34,7 +35,7 @@ public class Main {
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Spatial", new SpatialTabComponent(ctx).getContentPane());
-        tabbedPane.addTab("Multimedia", new JButton());
+        tabbedPane.addTab("Multimedia", new MultimediaTabComponent(ctx).getContentPane());
 
         frame.setContentPane(tabbedPane);
 
