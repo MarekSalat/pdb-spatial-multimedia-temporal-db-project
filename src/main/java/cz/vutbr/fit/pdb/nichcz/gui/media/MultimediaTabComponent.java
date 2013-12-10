@@ -41,6 +41,10 @@ public class MultimediaTabComponent extends BaseFrame {
     private JButton flipButton;
     private JButton mirrorButton;
     private JButton saveButton;
+    private JButton similarButton;
+    private JButton showAllButton;
+    private JTextField textField3;
+    private JButton contrastButton;
 
     private MediaDBMapper mapper;
 
@@ -114,7 +118,7 @@ public class MultimediaTabComponent extends BaseFrame {
 
                     updateTable();
 
-                    updateImageLabel();
+                    clearImageLabel();
                 }
             }
         });
@@ -174,6 +178,8 @@ public class MultimediaTabComponent extends BaseFrame {
                     if (res == null)
                         return;
 
+                    System.out.println(res);
+
                     executeProcess("scale=\"" + res + "\"", rowIndex);
                 }
             }
@@ -212,6 +218,49 @@ public class MultimediaTabComponent extends BaseFrame {
                         mapper.save(e);
                         e.setNameChanged(false);
                     }
+                }
+            }
+        });
+
+        similarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                int rowIndex = table1.getSelectedRow();
+                if (rowIndex != NO_ROW) {
+//                    MediaEntity e = mapper.findById((Long) table1.getValueAt(rowIndex, ID_COL));
+                    List<MediaEntity> similar = mapper.findSimilar((Long) table1.getValueAt(rowIndex, ID_COL));
+                    MediaTableModel mediaTableModel = new MediaTableModel(similar);
+
+                    table1.setModel(mediaTableModel);
+                    table1.getColumnModel().getColumn(ID_COL).setMinWidth(0);
+                    table1.getColumnModel().getColumn(ID_COL).setMaxWidth(0);
+
+                    clearImageLabel();
+                }
+            }
+        });
+
+        showAllButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTable();
+                clearImageLabel();
+            }
+        });
+
+        contrastButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int rowIndex = table1.getSelectedRow();
+                if (rowIndex != NO_ROW) {
+                    String res = getInput(textField3, true);
+
+                    if (res == null)
+                        return;
+
+                    System.out.println(res);
+
+                    executeProcess("contrast=\"" + res + "\"", rowIndex);
                 }
             }
         });
@@ -294,7 +343,7 @@ public class MultimediaTabComponent extends BaseFrame {
         imageLabel.updateUI();
     }
 
-    private void updateImageLabel() {
+    private void clearImageLabel() {
         imageLabel.setIcon(null);
 
         imageLabel.updateUI();

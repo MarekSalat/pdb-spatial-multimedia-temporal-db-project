@@ -22,6 +22,8 @@ import java.util.List;
  */
 public class MediaDBMapper extends AbstractDBMapper<MediaEntity, Long> {
 
+    private static final double SIM_MAX = 20;
+
     List<MediaEntity> entities = new ArrayList<>();
 
     public MediaDBMapper(Context ctx) {
@@ -218,5 +220,50 @@ public class MediaDBMapper extends AbstractDBMapper<MediaEntity, Long> {
         catch (Exception ex) { ex.printStackTrace(); throw new RuntimeException(ex); }
 
         return e;
+    }
+
+    public List<MediaEntity> findSimilar(Long id) {
+        List<MediaEntity> res = new ArrayList<>();
+
+        try (
+                PreparedStatement stmt = getConnection().prepareStatement(
+                        "SELECT dst.id, dst.name, dst.photo, SI_ScoreByFtrList("
+                                + "new SI_FeatureList(src.photo_ac,?,src.photo_ch,?,src.photo_pc,?,src.photo_tx,?), dst.photo_si)"
+                                + " as similarity FROM PDB_MEDIA src, PDB_MEDIA dst "
+                                + "WHERE src.id <> dst.id "
+                                + "AND src.id = ? ORDER BY similarity ASC");
+        ){
+            int i=1;
+
+            double weightAC = 0.3;
+            double weightCH = 0.3;
+            double weightPC = 0.1;
+            double weightTX = 0.3;
+
+            stmt.setDouble(i++, weightAC);
+            stmt.setDouble(i++, weightCH);
+            stmt.setDouble(i++, weightPC);
+            stmt.setDouble(i++, weightTX);
+            stmt.setString(i++, String.valueOf(id));
+
+            try (OracleResultSet rset = (OracleResultSet) stmt.executeQuery()) {
+                while (rset.next()) {
+                    if (rset.getDouble("similarity") < SIM_MAX) {
+                        MediaEntity e = new MediaEntity();
+                        e.setId(Long.valueOf(rset.getString("id")));
+                        e.setName(rset.getString("name"));
+                        e.setImgProxy((OrdImage) rset.getORAData("photo", OrdImage.getORADataFactory()));
+
+//                        System.out.println(rset.getString("name") + " " + rset.getDouble("similarity"));
+
+                        res.add(e);
+                    }
+                }
+            }
+        }
+        catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex); }
+//        catch (Exception ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
+
+        return res;
     }
 }
