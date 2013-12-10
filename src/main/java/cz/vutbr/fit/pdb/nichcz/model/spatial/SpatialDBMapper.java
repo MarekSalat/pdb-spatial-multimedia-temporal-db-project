@@ -129,6 +129,8 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
     }
 
     public static Shape jGeometry2shape(JGeometry jGeometry) {
+        if(jGeometry == null) return null;
+
         Shape shape;
         switch (jGeometry.getType()) {
             case JGeometry.GTYPE_MULTIPOLYGON:

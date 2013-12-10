@@ -16,45 +16,89 @@ import java.awt.geom.Area;
 */
 public class SpatialEntityCanvasItem extends DraggableArea {
 
-    private SpatialEntity spatialEntity;
+    private SpatialEntity entity;
     private Shape oldGeometry;
     private Manipulator manipulator;
     private DraggableContainer container;
 
-    public SpatialEntityCanvasItem(DraggableContainer container, SpatialEntity spatialEntity) {
-        super(spatialEntity.getGeometry());
-        this.spatialEntity = spatialEntity;
-        this.oldGeometry = spatialEntity.getGeometry();
+    public SpatialEntityCanvasItem(DraggableContainer container, SpatialEntity entity) {
+        super(entity.getGeometry());
+        this.entity = entity;
+        this.oldGeometry = entity.getGeometry();
         this.container = container;
 
-        manipulator = new Manipulator(container, spatialEntity);
-        manipulator.createHooks();
+        manipulator = new Manipulator(container, entity);
     }
 
     @Override
     public void draw(Graphics2D g2) {
-        if(oldGeometry != spatialEntity.getGeometry()){
+        if(oldGeometry != entity.getGeometry()){
             reset();
-            add(new Area(spatialEntity.getGeometry()));
+            add(new Area(entity.getGeometry()));
         }
 
-        if(isSelected())
-            g2.setColor(Setting.Colors.pumpkin.getColor());
-        else
-            g2.setColor(Setting.Colors.belize_hole.getColor());
+        g2.setColor(getColor());
 
-        if(spatialEntity.getObjectType() == SpatialEntity.TYPE.STREAM || spatialEntity.getObjectType() == SpatialEntity.TYPE.TRACK) {
+        if(entity.getObjectType() == SpatialEntity.TYPE.STREAM || entity.getObjectType() == SpatialEntity.TYPE.TRACK) {
             Stroke oldStroke = g2.getStroke();
             g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.draw(spatialEntity.getGeometry());
+            g2.draw(entity.getGeometry());
             g2.setStroke(oldStroke);
         }
         else {
-            g2.fill(spatialEntity.getGeometry());
+            g2.fill(entity.getGeometry());
         }
 
         //if(isSelected())
         manipulator.draw(g2);
+    }
+
+    private Color getColor(){
+        Setting.Colors color;
+        int alpha = 96;
+        switch (entity.getObjectType()){
+            // polygons
+            case FOREST:
+                color = Setting.Colors.emerald;
+                break;
+            case STREAM:
+                alpha = 255;
+            case WATER:
+                color = Setting.Colors.peter_river;
+                break;
+            case LOGGING_AREA:
+                color = Setting.Colors.carrot;
+                alpha = 156;
+                break;
+            case FIELD:
+                color = Setting.Colors.sun_flower;
+                break;
+            // lines
+            case TRACK:
+                color = Setting.Colors.wet_asphalt;
+                alpha = 255;
+                break;
+            // circles
+            case HUNTING_AREA:
+                color = Setting.Colors.alizarin;
+                break;
+            // points
+            case VIEW:
+                color = Setting.Colors.amethyst;
+                alpha = 255;
+                break;
+            case FEEDING_RACK:
+                color = Setting.Colors.midnight_blue;
+                alpha = 255;
+                break;
+            case UNKNOWN:
+            default:
+                color = Setting.Colors.concrete;
+        }
+
+        if(isSelected()) return Setting.Colors.pomegranate.getColor(alpha+30 > 255 ? 255 : alpha+30);
+
+        return color.getColor(alpha);
     }
 
     @Override
@@ -80,11 +124,11 @@ public class SpatialEntityCanvasItem extends DraggableArea {
     }
 
     public SpatialEntity getEntity() {
-        return spatialEntity;
+        return entity;
     }
 
-    public void setSpatialEntity(SpatialEntity spatialEntity) {
-        this.spatialEntity = spatialEntity;
+    public void setEntity(SpatialEntity entity) {
+        this.entity = entity;
     }
 
     public Manipulator getManipulator() {

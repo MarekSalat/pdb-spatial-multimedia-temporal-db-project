@@ -12,6 +12,6 @@ public class Point2DShape extends Ellipse2D.Double {
     }
 
     public Point2DShape(double x, double y) {
-        super(x, y, 5, 5);
+        super(x, y, 16, 16);
     }
 }

@@ -16,12 +16,12 @@ public class DraggableContainer implements Serializable {
         addSelectable(draggable);
     }
 
-    void addSelectable(Selectable selectable) {
+    public void addSelectable(Selectable selectable) {
         selectables.add(selectable);
         addDrawable(selectable);
     }
 
-    void addDrawable(Drawable drawable) {
+    public void addDrawable(Drawable drawable) {
         drawables.add(drawable);
     }
 

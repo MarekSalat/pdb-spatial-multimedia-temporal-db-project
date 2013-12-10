@@ -29,6 +29,8 @@ public class SpatialTabComponent extends BaseFrame {
     private JButton newButton;
     private JComboBox typeComboBox;
     private JButton saveAllButton;
+    private JLabel status;
+    private JLabel statusValue;
 
     private Point2D lastPosition = new Point2D.Double();
 
@@ -52,7 +54,7 @@ public class SpatialTabComponent extends BaseFrame {
         });
 
         for (SpatialEntity entity : mapper.findAll()) {
-            canvas.addEntity(entity);
+            canvas.addEntityAsDraggable(entity);
         }
 
         canvas.addMouseListener(new MouseInputAdapter() {
@@ -65,9 +67,16 @@ public class SpatialTabComponent extends BaseFrame {
     }
 
     private void saveAll() {
+        String status = "";
         for(SpatialEntity entity : canvas.entities){
+            try {
             mapper.save(entity);
+            } catch (RuntimeException e){
+                status += entity + " can not be saved: " + e.toString();
+            }
         }
+
+        statusValue.setText(status.isEmpty() ? "All entities has been saved successfully." : status);
     }
 
     private void entityNew() {
@@ -115,9 +124,11 @@ public class SpatialTabComponent extends BaseFrame {
         entity.setGeometry(shape);
         mapper.save(entity);
 
-        canvas.addEntity(entity);
+        canvas.addEntityAsDraggable(entity);
         canvas.repaint();
         entitySelected(entity);
+
+        statusValue.setText("Entity with has been created.");
     }
 
     public SpatialDBMapper getMapper(){
@@ -145,6 +156,7 @@ public class SpatialTabComponent extends BaseFrame {
             @Override
             public void onDelete(SpatialEntity entity) {
                 entityOnDeleted(entity);
+                statusValue.setText("Entity with has been deleted.");
             }
         });
     }
