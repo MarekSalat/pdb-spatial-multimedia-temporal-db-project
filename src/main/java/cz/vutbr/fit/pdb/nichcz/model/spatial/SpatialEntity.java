@@ -13,7 +13,8 @@ import java.util.UUID;
  * Date: 3.12.13
  * Time: 18:03
  *
- *
+
+ DROP TABLE PDB_SPATIAL
  CREATE TABLE PDB_SPATIAL
  (
      ID VARCHAR2(64) PRIMARY KEY NOT NULL,
@@ -29,6 +30,19 @@ import java.util.UUID;
      MODIFIED DATE,
      SPECIAL_FIELD INTEGER
  );
+
+ DELETE FROM USER_SDO_GEOM_METADATA WHERE
+ TABLE_NAME = 'PDB_SPATIAL' AND COLUMN_NAME = 'GEOMETRY';
+
+ INSERT INTO USER_SDO_GEOM_METADATA VALUES (
+    'PDB_SPATIAL', 'GEOMETRY',
+    SDO_DIM_ARRAY(SDO_DIM_ELEMENT('X', 0, 2000, 1), SDO_DIM_ELEMENT('Y', 0, 2000, 1)),
+    NULL
+ );
+
+ DROP INDEX pdb_spatial_geometry_sidx;
+ CREATE INDEX pdb_spatial_geometry_sidx ON PDB_SPATIAL(GEOMETRY) INDEXTYPE IS MDSYS.SPATIAL_INDEX;
+
  *
  */
 public class SpatialEntity implements Entity<Long>{
@@ -52,7 +66,7 @@ public class SpatialEntity implements Entity<Long>{
 
         // points
         VIEW,
-        FEEDING_RACK;
+        FEEDING_RACK
     }
 
     public Long id; // in database is mapped to string, because oracle does not know how to store long
@@ -84,10 +98,11 @@ public class SpatialEntity implements Entity<Long>{
 
     @Override
     public String getTable() {
-        return this.TABLE;
+        return TABLE;
     }
 
     private Area area;
+    @SuppressWarnings("UnusedDeclaration")
     public Area getArea(){
         if(area == null)
             area = new Area( geometry );
@@ -180,10 +195,12 @@ public class SpatialEntity implements Entity<Long>{
         this.modified = modified;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public double getSpecialField() {
         return specialField;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setSpecialField(double specialField) {
         this.specialField = specialField;
     }
