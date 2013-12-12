@@ -55,10 +55,18 @@ public class SpatialCanvas extends JPanel {
         }
     }
 
-    public void addEntity(SpatialEntity entity){
+    public void addEntityAsDraggable(SpatialEntity entity){
+        entities.add(entity);
+        SpatialEntityCanvasItem canvasItem = new SpatialEntityCanvasItem(draggableContainer, entity);
+        draggableContainer.addDraggable(canvasItem);
+        canvasItems.add(canvasItem);
+        canvasItem.getManipulator().createHooks();
+    }
+
+    public void addEntityAsSelectable(SpatialEntity entity){
         entities.add(entity);
         SpatialEntityCanvasItem spatialEntityGUI = new SpatialEntityCanvasItem(draggableContainer, entity);
-        draggableContainer.addDraggable(spatialEntityGUI);
+        draggableContainer.addSelectable(spatialEntityGUI);
         canvasItems.add(spatialEntityGUI);
     }
 
@@ -68,6 +76,14 @@ public class SpatialCanvas extends JPanel {
             SpatialEntityCanvasItem item = iterator.next();
             if (item.getEntity() == entity) iterator.remove();
         }
+    }
+
+    public void removeAllEntities(){
+        entities.clear();
+        draggableContainer.draggables.clear();
+        draggableContainer.selectables.clear();
+        draggableContainer.drawables.clear();
+        canvasItems.clear();
     }
 
     public ArrayList<SpatialEntityCanvasItem> getCanvasItems() {
@@ -81,10 +97,8 @@ public class SpatialCanvas extends JPanel {
         Image img = null;
         try {
              img = ImageIO.read(new File(ClassLoader.getSystemResource("mapa.png").toURI()));
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         return img;
     }
@@ -138,14 +152,20 @@ public class SpatialCanvas extends JPanel {
                 return;
             }
 
-            if(e.getButton() == 3 && selected != null && selected instanceof SpatialEntityCanvasItem){
+            if( e.getButton() == 3 &&
+                selected != null && selected instanceof SpatialEntityCanvasItem &&
+                draggableContainer.draggables.contains(selected)
+            ){
                 SpatialEntityCanvasItem i = (SpatialEntityCanvasItem) selected;
                 i.getManipulator().addSegmentAt(e.getPoint());
                 repaint();
                 return;
             }
 
-            if(e.getButton() == 2 && selected != null && selected instanceof SpatialEntityCanvasItem){
+            if( e.getButton() == 2 && selected != null &&
+                selected instanceof SpatialEntityCanvasItem &&
+                draggableContainer.draggables.contains(selected)
+             ){
                 SpatialEntityCanvasItem i = (SpatialEntityCanvasItem) selected;
                 removeEntity(i.getEntity());
                 mapper.delete(i.getEntity());
@@ -160,12 +180,12 @@ public class SpatialCanvas extends JPanel {
             Drawable shape = getIntersectedDrawable(e.getX(), e.getY());
             if (shape == null) return;
 
-            if (shape instanceof Selectable) {
+            if (draggableContainer.selectables.contains(shape)) {
                 selected = (Selectable) shape;
                 select(selected);
             }
 
-            if (shape instanceof Draggable) {
+            if (draggableContainer.draggables.contains(shape)) {
                 isDragged = true;
                 start.setLocation(e.getPoint());
             }
@@ -186,7 +206,7 @@ public class SpatialCanvas extends JPanel {
         @Override
         public void mouseDragged(MouseEvent e) {
             super.mouseDragged(e);
-            if (!isDragged || selected == null || !(selected instanceof Draggable))
+            if (!isDragged)
                 return;
 
             delta.setLocation(e.getX() - start.getX(), e.getY() - start.getY());

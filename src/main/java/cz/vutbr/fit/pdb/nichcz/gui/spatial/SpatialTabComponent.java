@@ -16,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 /**
  * User: Marek Salát
@@ -29,11 +30,16 @@ public class SpatialTabComponent extends BaseFrame {
     private JButton newButton;
     private JComboBox typeComboBox;
     private JButton saveAllButton;
+    private JLabel status;
+    private JTextField statusValue;
+    private JTextArea entityInfo;
+    private JPanel selectors;
+    private JTextArea generalInfo;
 
     private Point2D lastPosition = new Point2D.Double();
-
-
     private SpatialDBMapper mapper;
+
+    private ArrayList<JCheckBox> checkBoxes;
 
     public SpatialTabComponent(Context ctx) {
         super(ctx);
@@ -51,9 +57,7 @@ public class SpatialTabComponent extends BaseFrame {
             }
         });
 
-        for (SpatialEntity entity : mapper.findAll()) {
-            canvas.addEntity(entity);
-        }
+        selectorsChanged(null);
 
         canvas.addMouseListener(new MouseInputAdapter() {
             @Override
@@ -65,9 +69,16 @@ public class SpatialTabComponent extends BaseFrame {
     }
 
     private void saveAll() {
+        String status = "";
         for(SpatialEntity entity : canvas.entities){
+            try {
             mapper.save(entity);
+            } catch (RuntimeException e){
+                status += entity + " can not be saved: " + e.toString();
+            }
         }
+
+        statusValue.setText(status.isEmpty() ? "All entities has been saved successfully." : status);
     }
 
     private void entityNew() {
@@ -115,9 +126,11 @@ public class SpatialTabComponent extends BaseFrame {
         entity.setGeometry(shape);
         mapper.save(entity);
 
-        canvas.addEntity(entity);
+        canvas.addEntityAsDraggable(entity);
         canvas.repaint();
         entitySelected(entity);
+
+        statusValue.setText("Entity with has been created.");
     }
 
     public SpatialDBMapper getMapper(){
@@ -145,17 +158,93 @@ public class SpatialTabComponent extends BaseFrame {
             @Override
             public void onDelete(SpatialEntity entity) {
                 entityOnDeleted(entity);
+                statusValue.setText("Entity with has been deleted.");
             }
         });
+
+        checkBoxes = new ArrayList<>();
+        selectors = new JPanel();
+        selectors.setMaximumSize(new Dimension(-1, 442));
+
+        for(SpatialEntity.TYPE type : SpatialEntity.TYPE.values()){
+            if(type == SpatialEntity.TYPE.UNKNOWN) continue;
+
+            JCheckBox jCheckBox = new JCheckBox(type.toString());
+            jCheckBox.setName(type.toString());
+            jCheckBox.setSelected(true);
+            selectors.add(jCheckBox);
+            checkBoxes.add(jCheckBox);
+
+            jCheckBox.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    selectorsChanged(e);
+                }
+            });
+        }
+
+
+        selectors.revalidate();
+        selectors.repaint();
     }
 
+    private void selectorsChanged(ActionEvent e) {
+        String where = " OBJECT_TYPE IN (";
+        int j=0;
+        for (int i = 0; i < checkBoxes.size(); i++) {
+            JCheckBox checkBox = checkBoxes.get(i);
+            if (!checkBox.isSelected()) continue;
+            where += (j==0 ? "" : ", ")  + "'"+checkBox.getName()+"'";
+            j++;
+        }
+        if(j == 0) where += "'null'";
+        where += ")";
+
+        canvas.removeAllEntities();
+        for(SpatialEntity entity : mapper.findWhere(where)){
+            canvas.addEntityAsDraggable(entity);
+        }
+        canvas.repaint();
+
+        System.out.println(where);
+    }
+
+    private SpatialEntity curr;
+    private SpatialEntity prev;
     private void entityOnDeleted(SpatialEntity entity) {
         canvas.removeEntity(entity);
         canvas.repaint();
     }
 
     private void entitySelected(SpatialEntity entity) {
+        prev = curr;
+        curr = entity;
+
         entityForm.setEntity(entity);
+
+        entityInfo.setText("");
+        entityInfo.append(String.format(
+            "Area : %g\n" +
+            "Length : %g\n" +
+            "Distance to [name] = %s is : %g\n",
+            mapper.getGeometryArea(curr),
+            mapper.getGeometryLenght(curr),
+            prev == null ? "none" : prev.getName(),
+            prev == null ? 0 : mapper.getGeometriesShortestDistance(curr, prev)
+        ));
+
+        generalInfo.setText("");
+        SpatialEntity biggest = mapper.getBiggestAreaEntity(entity.getObjectType());
+        generalInfo.append(String.format(
+            "Type: %s\n"+
+            "Total area of type: %g\n"+
+            "Total length of type: %g\n"+
+            "Biggest area of type is %s with %g\n",
+            entity.getObjectType().toString(),
+            mapper.getTotalAreaOf(entity.getObjectType()),
+            mapper.getTotalLengthOf(entity.getObjectType()),
+            biggest.getName(), mapper.getGeometryArea(biggest)
+        ));
     }
 
     private void entityUnselected(SpatialEntity entity) {

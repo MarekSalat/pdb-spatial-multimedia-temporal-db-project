@@ -94,10 +94,14 @@ public class SpatialEntityForm extends BaseFrame{
         return entity;
     }
 
-    public void setEntity(SpatialEntity entity){
-        setData(entity);
-        this.entity = entity;
-        if(entity == null){
+    public void setEntity(SpatialEntity newEntity){
+        if(this.entity != null && isModified(this.entity)){
+            getData(this.entity);
+        }
+
+        setData(newEntity);
+        this.entity = newEntity;
+        if(newEntity == null){
             save.setEnabled(false);
             delete.setEnabled(false);
         }

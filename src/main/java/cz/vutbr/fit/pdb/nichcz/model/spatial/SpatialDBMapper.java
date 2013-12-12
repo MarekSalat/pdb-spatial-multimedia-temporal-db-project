@@ -97,38 +97,133 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
 
         List<SpatialEntity> res = new ArrayList<>();
         try (
-                ResultSet rset = getConnection().prepareStatement("select * from " + SpatialEntity.TABLE + " " + where).executeQuery();
+            ResultSet rset = getConnection().prepareStatement("select * from " + SpatialEntity.TABLE + " " + where).executeQuery();
         ){
             while (rset.next()) {
                 SpatialEntity e = new SpatialEntity();
-
-                e.setId(Long.valueOf(rset.getString("id")));
-                e.setObjectType(SpatialEntity.TYPE.valueOf(rset.getString("object_type").toUpperCase()));
-                e.setCategory(rset.getString("category"));
-
-                byte[] image = rset.getBytes("geometry");
-                JGeometry jGeometry = JGeometry.load(image);
-                e.setGeometry( jGeometry2shape(jGeometry) );
-
-                e.setName(rset.getString("name"));
-                e.setAdmin(rset.getString("admin"));
-                e.setOwner(rset.getString("owner"));
-                e.setNote(rset.getString("note"));
-
-                e.setValidFrom(rset.getDate("valid_from"));
-                e.setValidTo(rset.getDate("valid_to"));
-                e.setModified(rset.getDate("modified"));
-
+                resultSetToEntity(rset, e);
                 res.add(e);
             }
-        }
-        catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex); }
-        catch (Exception ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
+        } catch (Exception ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
 
         return res;
     }
 
+    private void resultSetToEntity(ResultSet rset, SpatialEntity e) throws Exception {
+        e.setId(Long.valueOf(rset.getString("id")));
+        e.setObjectType(SpatialEntity.TYPE.valueOf(rset.getString("object_type").toUpperCase()));
+        e.setCategory(rset.getString("category"));
+
+        byte[] image = rset.getBytes("geometry");
+        JGeometry jGeometry = JGeometry.load(image);
+        e.setGeometry( jGeometry2shape(jGeometry) );
+
+        e.setName(rset.getString("name"));
+        e.setAdmin(rset.getString("admin"));
+        e.setOwner(rset.getString("owner"));
+        e.setNote(rset.getString("note"));
+
+        e.setValidFrom(rset.getDate("valid_from"));
+        e.setValidTo(rset.getDate("valid_to"));
+        e.setModified(rset.getDate("modified"));
+    }
+
+    public double getGeometryArea(SpatialEntity entity){
+        try (
+                PreparedStatement stmt = getConnection().prepareStatement("select SDO_GEOM.SDO_AREA(geometry, 1, '') as area from PDB_SPATIAL where id=?");
+        ){
+            stmt.setString(1, String.valueOf(entity.getId()));
+            ResultSet rst = stmt.executeQuery();
+            rst.next();
+            return rst.getDouble("area");
+
+        } catch (SQLException e) {
+            e.printStackTrace(); throw new RuntimeException(e);
+        }
+    }
+
+    public double getGeometryLenght(SpatialEntity entity){
+        try (
+                PreparedStatement stmt = getConnection().prepareStatement("select SDO_GEOM.SDO_LENGTH(geometry, 1, '') as area from PDB_SPATIAL where id=?");
+        ){
+            stmt.setString(1, String.valueOf(entity.getId()));
+            ResultSet rst = stmt.executeQuery();
+            rst.next();
+            return rst.getDouble("area");
+
+        } catch (SQLException e) {
+            e.printStackTrace(); throw new RuntimeException(e);
+        }
+    }
+
+    public double getGeometriesShortestDistance(SpatialEntity e1, SpatialEntity e2){
+        try (
+            PreparedStatement stmt = getConnection().prepareStatement(
+                "select SDO_GEOM.SDO_DISTANCE(g1.geometry, g2.geometry, 1, '') as area from PDB_SPATIAL g1, pdb_spatial g2 where g1.id=? and g2.id=?"
+            );
+        ){
+            stmt.setString(1, String.valueOf(e1.getId()));
+            stmt.setString(2, String.valueOf(e2.getId()));
+            ResultSet rst = stmt.executeQuery();
+            rst.next();
+            return rst.getDouble("area");
+
+        } catch (SQLException e) { e.printStackTrace(); throw new RuntimeException(e); }
+    }
+
+    public double getTotalAreaOf(SpatialEntity.TYPE t){
+        try (
+            PreparedStatement stmt = getConnection().prepareStatement(
+                "SELECT SDO_GEOM.SDO_AREA(SDO_AGGR_UNION(SDO_GEOM.SDOAGGRTYPE(geometry, 1)), 1) area FROM PDB_SPATIAL WHERE OBJECT_TYPE = ?"
+            );
+        ){
+            stmt.setString(1, String.valueOf(t.toString()));
+            ResultSet rst = stmt.executeQuery();
+            rst.next();
+            return rst.getDouble("area");
+        } catch (SQLException e) { e.printStackTrace(); throw new RuntimeException(e); }
+    }
+
+    public double getTotalLengthOf(SpatialEntity.TYPE t){
+        try (
+            PreparedStatement stmt = getConnection().prepareStatement(
+                "SELECT SDO_GEOM.SDO_LENGTH(SDO_AGGR_UNION(SDO_GEOM.SDOAGGRTYPE(geometry, 1)), 1) area FROM PDB_SPATIAL WHERE OBJECT_TYPE = ?"
+            );
+        ){
+            stmt.setString(1, String.valueOf(t.toString()));
+            ResultSet rst = stmt.executeQuery();
+            rst.next();
+            return rst.getDouble("area");
+        } catch (SQLException e) { e.printStackTrace(); throw new RuntimeException(e); }
+    }
+
+    public SpatialEntity getBiggestAreaEntity(SpatialEntity.TYPE t){
+        try (
+            PreparedStatement stmt= getConnection().prepareStatement(
+                "SELECT * " +
+                "FROM pdb_spatial img " +
+                "WHERE (img.OBJECT_TYPE = ?) AND NOT EXISTS ( " +
+                "    SELECT 1 FROM PDB_SPATIAL cmp " +
+                "    WHERE (cmp.object_type = ?) AND " +
+                "          (SDO_GEOM.SDO_AREA(cmp.geometry, 1) > SDO_GEOM.SDO_AREA(img.geometry, 1)) AND " +
+                "          (img.id <> cmp.id) " +
+                ")"
+            );
+        ){
+            stmt.setString(1, t.toString());
+            stmt.setString(2, t.toString());
+            ResultSet rset = stmt.executeQuery();
+            rset.next();
+            SpatialEntity e = new SpatialEntity();
+            resultSetToEntity(rset, e);
+
+            return  e;
+        } catch (Exception ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
+    }
+
     public static Shape jGeometry2shape(JGeometry jGeometry) {
+        if(jGeometry == null) return null;
+
         Shape shape;
         switch (jGeometry.getType()) {
             case JGeometry.GTYPE_MULTIPOLYGON:

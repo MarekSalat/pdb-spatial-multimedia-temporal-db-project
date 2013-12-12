@@ -104,8 +104,12 @@ public class Setting implements Serializable {
             return color.getRGB();
         }
 
+        public Color getColor(int aplha){
+            return new Color(color.getRed(), color.getGreen(), color.getBlue(), aplha);
+        }
+
         public Color getColor() {
-            return new Color(color.getRed(), color.getGreen(), color.getBlue(), 196);
+            return getColor(255);
         }
     }
 }
