@@ -78,6 +78,14 @@ public class SpatialCanvas extends JPanel {
         }
     }
 
+    public void removeAllEntities(){
+        entities.clear();
+        draggableContainer.draggables.clear();
+        draggableContainer.selectables.clear();
+        draggableContainer.drawables.clear();
+        canvasItems.clear();
+    }
+
     public ArrayList<SpatialEntityCanvasItem> getCanvasItems() {
         return canvasItems;
     }
