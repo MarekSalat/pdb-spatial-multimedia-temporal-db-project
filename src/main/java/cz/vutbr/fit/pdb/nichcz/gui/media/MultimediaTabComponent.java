@@ -9,8 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -21,61 +20,57 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: admin
+ * User: Michal Pracuch
  * Date: 4.12.13
  * Time: 10:22
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida reprezentujici formular MultimediaTabComponent pro zalozku hlavni aplikace.
  */
 public class MultimediaTabComponent extends BaseFrame {
 
-    private JPanel panel1;
+    private JPanel rootPanel;
     private JButton insertButton;
     private JButton deleteButton;
-    private JTable table1;
+    private JTable mediaTable;
     private JLabel imageLabel;
-    private JTextField textField1;
+    private JTextField rotateTextField;
     private JButton rotateButton;
-    private JTextField textField2;
+    private JTextField scaleTextField;
     private JButton scaleButton;
     private JButton flipButton;
     private JButton mirrorButton;
     private JButton saveButton;
     private JButton similarButton;
     private JButton showAllButton;
-    private JTextField textField3;
+    private JTextField contrastTextField;
     private JButton contrastButton;
 
     private MediaDBMapper mapper;
 
     private NumberFormat nf;
 
-    private static final int ID_COL = 0;
     private static final int NO_ROW = -1;
 
 
+    /**
+     * Vytvori novy formular MultimediaTabComponent pro zalozku hlavni aplikace.
+     * @param ctx Kontext s pripojenim na databazi
+     */
     public MultimediaTabComponent(Context ctx) {
         super(ctx);
 
-        setContentPane(panel1);
+        setContentPane(rootPanel);
 
         mapper = new MediaDBMapper(ctx);
 
-        //Create a file chooser
         final JFileChooser fc = new JFileChooser();
-//        fc.addChoosableFileFilter(new ImageFilter());
         fc.setFileFilter(new ImageFilter());
-
-
 
         nf = NumberFormat.getNumberInstance();
 
-//        add(panel1);
+//        updateTable();
 
-        updateTable();
-
-        table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
+        mediaTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 
         insertButton.addActionListener(new ActionListener() {
@@ -90,7 +85,6 @@ public class MultimediaTabComponent extends BaseFrame {
                     System.out.println("Opening: " + file.getPath() + ".");
 
                     MediaEntity e = mapper.create();
-//                    e.setFilePath(file.getPath());
                     e.setName(file.getName().substring(0, file.getName().lastIndexOf('.')));
 
                     mapper.loadImageFromFile(e, file.getPath());
@@ -109,45 +103,27 @@ public class MultimediaTabComponent extends BaseFrame {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                int rowIndex = table1.getSelectedRow();
+                int rowIndex = mediaTable.getSelectedRow();
                 if (rowIndex != NO_ROW) {
 //                    System.out.println(rowIndex);
-//                    System.out.println(table1.getValueAt(rowIndex, 0));
-                    MediaEntity e = mapper.findById((Long) table1.getValueAt(rowIndex, ID_COL));
+
+                    MediaEntity e = mapper.findById((Long) mediaTable.getValueAt(rowIndex, MediaTableModel.COL_ID));
                     mapper.delete(e);
 
                     updateTable();
-
-                    clearImageLabel();
                 }
             }
         });
 
-        table1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+        mediaTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent event) {
-                if (!event.getValueIsAdjusting())
-                {
-                    int rowIndex = table1.getSelectedRow();
+                if (!event.getValueIsAdjusting()) {
+                    int rowIndex = mediaTable.getSelectedRow();
                     if (rowIndex != NO_ROW) {
 //                        System.out.println(rowIndex);
-//                        System.out.println(table1.getValueAt(rowIndex, 0));
-                        MediaEntity e = mapper.findById((Long) table1.getValueAt(rowIndex, ID_COL));
+//                        System.out.println(mediaTable.getValueAt(rowIndex, 0));
 
-                        BufferedImage myPicture;
-
-                        try {
-                            myPicture = ImageIO.read(e.getImgProxy().getDataInStream());
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                            throw new RuntimeException(ex);
-                        } catch (SQLException ex) {
-                            ex.printStackTrace();
-                            throw new RuntimeException(ex);
-                        }
-
-                        imageLabel.setIcon(new ImageIcon(myPicture));
-
-                        imageLabel.updateUI();
+                        updateImageLabel(rowIndex);
                     }
                 }
             }
@@ -156,9 +132,9 @@ public class MultimediaTabComponent extends BaseFrame {
         rotateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                int rowIndex = table1.getSelectedRow();
+                int rowIndex = mediaTable.getSelectedRow();
                 if (rowIndex != NO_ROW) {
-                    String res = getInput(textField1, false);
+                    String res = getInput(rotateTextField, false);
 
                     if (res == null)
                         return;
@@ -171,9 +147,9 @@ public class MultimediaTabComponent extends BaseFrame {
         scaleButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                int rowIndex = table1.getSelectedRow();
+                int rowIndex = mediaTable.getSelectedRow();
                 if (rowIndex != NO_ROW) {
-                    String res = getInput(textField2, true);
+                    String res = getInput(scaleTextField, true);
 
                     if (res == null)
                         return;
@@ -188,7 +164,7 @@ public class MultimediaTabComponent extends BaseFrame {
         flipButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int rowIndex = table1.getSelectedRow();
+                int rowIndex = mediaTable.getSelectedRow();
                 if (rowIndex != NO_ROW) {
                     executeProcess("flip", rowIndex);
                 }
@@ -198,7 +174,7 @@ public class MultimediaTabComponent extends BaseFrame {
         mirrorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int rowIndex = table1.getSelectedRow();
+                int rowIndex = mediaTable.getSelectedRow();
                 if (rowIndex != NO_ROW) {
                     executeProcess("mirror", rowIndex);
                 }
@@ -209,10 +185,10 @@ public class MultimediaTabComponent extends BaseFrame {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                MediaTableModel mediaTableModel = (MediaTableModel) table1.getModel();
+                MediaTableModel mediaTableModel = (MediaTableModel) mediaTable.getModel();
                 List<MediaEntity> entities = mediaTableModel.getEntities();
 
-                for (Iterator<MediaEntity> i = entities.iterator(); i.hasNext();) {
+                for (Iterator<MediaEntity> i = entities.iterator(); i.hasNext(); ) {
                     MediaEntity e = i.next();
                     if (e.isNameChanged()) {
                         mapper.save(e);
@@ -225,17 +201,12 @@ public class MultimediaTabComponent extends BaseFrame {
         similarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                int rowIndex = table1.getSelectedRow();
+                int rowIndex = mediaTable.getSelectedRow();
                 if (rowIndex != NO_ROW) {
-//                    MediaEntity e = mapper.findById((Long) table1.getValueAt(rowIndex, ID_COL));
-                    List<MediaEntity> similar = mapper.findSimilar((Long) table1.getValueAt(rowIndex, ID_COL));
+                    List<MediaEntity> similar = mapper.findSimilar((Long) mediaTable.getValueAt(rowIndex, MediaTableModel.COL_ID));
                     MediaTableModel mediaTableModel = new MediaTableModel(similar);
 
-                    table1.setModel(mediaTableModel);
-                    table1.getColumnModel().getColumn(ID_COL).setMinWidth(0);
-                    table1.getColumnModel().getColumn(ID_COL).setMaxWidth(0);
-
-                    clearImageLabel();
+                    updateTable(mediaTableModel);
                 }
             }
         });
@@ -244,16 +215,15 @@ public class MultimediaTabComponent extends BaseFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateTable();
-                clearImageLabel();
             }
         });
 
         contrastButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int rowIndex = table1.getSelectedRow();
+                int rowIndex = mediaTable.getSelectedRow();
                 if (rowIndex != NO_ROW) {
-                    String res = getInput(textField3, true);
+                    String res = getInput(contrastTextField, true);
 
                     if (res == null)
                         return;
@@ -264,8 +234,15 @@ public class MultimediaTabComponent extends BaseFrame {
                 }
             }
         });
-    }
 
+        rootPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                super.componentShown(e);    //To change body of overridden methods use File | Settings | File Templates.
+                updateTable();
+            }
+        });
+    }
 
 
     private String getInput(JTextField textField, boolean getAbs) {
@@ -276,7 +253,7 @@ public class MultimediaTabComponent extends BaseFrame {
         try {
             factor = Float.valueOf(textField.getText());
             isNum = true;
-        } catch (NumberFormatException e1) {
+        } catch (NumberFormatException e) {
             System.out.println("Input is not a Float, trying to parse.");
 //                        return;
         }
@@ -289,11 +266,10 @@ public class MultimediaTabComponent extends BaseFrame {
 
         res = nf.format(factor);
 
-        if (!isNum)
-        {
+        if (!isNum) {
             Number parse = null;
             try {
-                parse = nf.parse(textField2.getText());
+                parse = nf.parse(scaleTextField.getText());
             } catch (ParseException e) {
                 System.out.println("Input is not a number.");
                 return null;
@@ -312,19 +288,36 @@ public class MultimediaTabComponent extends BaseFrame {
         return res;
     }
 
-    private void updateTable()
-    {
+
+    private void updateTable() {
         MediaTableModel mediaTableModel = new MediaTableModel(mapper.findAll());
 
-        table1.setModel(mediaTableModel);
-//        table1.removeColumn(table1.getColumnModel().getColumn(0));
-        table1.getColumnModel().getColumn(ID_COL).setMinWidth(0);
-        table1.getColumnModel().getColumn(ID_COL).setMaxWidth(0);
+        updateTable(mediaTableModel);
     }
 
-    private void updateImageLabel(int rowIndex)
-    {
-        MediaEntity e = mapper.findById((Long) table1.getValueAt(rowIndex, ID_COL));
+    private void updateTable(MediaTableModel mediaTableModel) {
+        mediaTable.setModel(mediaTableModel);
+
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_ID).setMinWidth(0);
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_ID).setMaxWidth(0);
+
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_INDEX).setMinWidth(10);
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_INDEX).setPreferredWidth(20);
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_INDEX).setMaxWidth(50);
+
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_WIDTH).setMinWidth(30);
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_WIDTH).setPreferredWidth(40);
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_WIDTH).setMaxWidth(50);
+
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_HEIGHT).setMinWidth(30);
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_HEIGHT).setPreferredWidth(40);
+        mediaTable.getColumnModel().getColumn(MediaTableModel.COL_HEIGHT).setMaxWidth(50);
+
+        clearImageLabel();
+    }
+
+    private void updateImageLabel(int rowIndex) {
+        MediaEntity e = mapper.findById((Long) mediaTable.getValueAt(rowIndex, MediaTableModel.COL_ID));
 
         BufferedImage myPicture;
 
@@ -339,24 +332,23 @@ public class MultimediaTabComponent extends BaseFrame {
         }
 
         imageLabel.setIcon(new ImageIcon(myPicture));
-
         imageLabel.updateUI();
     }
 
     private void clearImageLabel() {
         imageLabel.setIcon(null);
-
         imageLabel.updateUI();
     }
 
-    private void executeProcess(String command, int rowIndex)
-    {
-        MediaEntity e = mapper.findByIdForUpdate((Long) table1.getValueAt(rowIndex, ID_COL));
+    private void executeProcess(String command, int rowIndex) {
+        MediaEntity e = mapper.findByIdForUpdate((Long) mediaTable.getValueAt(rowIndex, MediaTableModel.COL_ID));
 
         try {
             e.getImgProxy().process(command);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
-        catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex); }
 
         mapper.save(e);
 

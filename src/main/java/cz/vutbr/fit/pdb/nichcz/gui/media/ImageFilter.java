@@ -4,15 +4,15 @@ import javax.swing.filechooser.FileFilter;
 import java.io.File;
 
 /**
- * Created with IntelliJ IDEA.
- * User: admin
+ * User: Michal Pracuch
  * Date: 7.12.13
  * Time: 2:31
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida slouzi k filtrovani souboru pri jejich vyberu pro nahrani do databaze.
  */
-public class ImageFilter  extends FileFilter {
+public class ImageFilter extends FileFilter {
 
-    //Accept all directories and image files.
+    @Override
     public boolean accept(File f) {
         if (f.isDirectory()) {
             return true;
@@ -41,7 +41,7 @@ public class ImageFilter  extends FileFilter {
         return false;
     }
 
-    //The description of this filter
+    @Override
     public String getDescription() {
         return "Just Images";
     }

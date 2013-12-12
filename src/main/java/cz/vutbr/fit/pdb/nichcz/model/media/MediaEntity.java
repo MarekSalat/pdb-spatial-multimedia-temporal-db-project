@@ -3,19 +3,17 @@ package cz.vutbr.fit.pdb.nichcz.model.media;
 import cz.vutbr.fit.pdb.nichcz.model.Entity;
 import oracle.ord.im.OrdImage;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.UUID;
 
 /**
- * Created with IntelliJ IDEA.
- * User: admin
+ * User: Michal Pracuch
  * Date: 6.12.13
  * Time: 16:24
  *
- *
- *
+ * Trida popisujici reprezentujici entity z databaze.
+ */
 
+/*
  DROP TABLE PDB_MEDIA;
 
  CREATE TABLE PDB_MEDIA
@@ -31,17 +29,17 @@ import java.util.UUID;
  );
 
  COMMIT;
-
  */
+
 public class MediaEntity implements Entity<Long> {
-    public static String TABLE="PDB_MEDIA";
+    public static final String TABLE = "PDB_MEDIA";
 
-    public Long id; // in database is mapped to string, because oracle does not know how to store long
-    public String name;
+    private Long id; // in database is mapped to string, because oracle does not know how to store long
+    private String name;
 
-    public OrdImage imgProxy;
+    private OrdImage imgProxy;
 
-    public boolean nameChanged = false;
+    private boolean nameChanged = false;
 
 
     public void setId(Long id) {
@@ -72,10 +70,13 @@ public class MediaEntity implements Entity<Long> {
         this.nameChanged = nameChanged;
     }
 
+
+    /**
+     * Vytvori novou MediaEntity reprezentujici entitu z databaze.
+     */
     public MediaEntity() {
         this.id = UUID.randomUUID().getMostSignificantBits();
     }
-
 
 
     @Override
@@ -85,6 +86,6 @@ public class MediaEntity implements Entity<Long> {
 
     @Override
     public String getTable() {
-        return this.TABLE;
+        return TABLE;
     }
 }

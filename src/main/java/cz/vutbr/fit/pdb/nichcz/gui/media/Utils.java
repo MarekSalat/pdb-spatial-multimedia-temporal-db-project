@@ -3,11 +3,11 @@ package cz.vutbr.fit.pdb.nichcz.gui.media;
 import java.io.File;
 
 /**
- * Created with IntelliJ IDEA.
- * User: admin
+ * User: Michal Pracuch
  * Date: 7.12.13
  * Time: 2:24
- * To change this template use File | Settings | File Templates.
+ *
+ * Pomocna trida s definovanymi priponami obrazku.
  */
 public class Utils {
     public final static String bmp = "bmp";
@@ -32,15 +32,20 @@ public class Utils {
     public final static String tif = "tif";
     public final static String wbmp = "wbmp";
 
-    //Get extension of file
+    /**
+     * Ziska priponu souboru.
+     * @param f Vstupni soubor
+     * @return Vraci priponu souboru
+     */
     public static String getExtension(File f) {
         String ext = null;
         String s = f.getName();
         int i = s.lastIndexOf('.');
 
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
+        if (i > 0 && i < s.length() - 1) {
+            ext = s.substring(i + 1).toLowerCase();
         }
+
         return ext;
     }
 }
