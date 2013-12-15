@@ -4,6 +4,7 @@ import cz.vutbr.fit.pdb.nichcz.context.Context;
 import cz.vutbr.fit.pdb.nichcz.gui.dialogs.LoginDialog;
 import cz.vutbr.fit.pdb.nichcz.gui.media.MultimediaTabComponent;
 import cz.vutbr.fit.pdb.nichcz.gui.spatial.SpatialTabComponent;
+import cz.vutbr.fit.pdb.nichcz.model.InitDBMapper;
 import cz.vutbr.fit.pdb.nichcz.setting.Environment;
 
 import javax.swing.*;
@@ -18,8 +19,16 @@ import java.awt.event.WindowEvent;
  */
 public class Main {
     private static Context ctx = new Context();
+    private static boolean initDB = false;
+
     public static void main(String[] args) {
         Environment.context = ctx;
+
+        if (args.length == 1) {
+            if (args[0].equals("-i") || args[0].equals("--init")) {
+                initDB = true;
+            }
+        }
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -30,6 +39,19 @@ public class Main {
 
     private static void createAndShowGUI(final Context ctx) {
         initLookAndFeel();
+
+        if (initDB) {
+            InitDBMapper initDBMapper = new InitDBMapper(ctx);
+//            System.out.println(initDBMapper.initDB());
+
+            if (!initDBMapper.initDB()) {
+                System.err.println("Could not initialize database.");
+                ctx.close();
+                System.exit(0);
+            }
+
+            initDBMapper.loadMedia();
+        }
 
         JFrame frame = new JFrame("PDB");
 
