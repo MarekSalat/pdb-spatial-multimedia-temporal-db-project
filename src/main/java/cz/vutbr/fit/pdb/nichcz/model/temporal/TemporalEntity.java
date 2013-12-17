@@ -1,5 +1,9 @@
 package cz.vutbr.fit.pdb.nichcz.model.temporal;
 
+import cz.vutbr.fit.pdb.nichcz.model.Entity;
+
+import java.util.Date;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Nich
@@ -7,5 +11,10 @@ package cz.vutbr.fit.pdb.nichcz.model.temporal;
  * Time: 0:48
  * To change this template use File | Settings | File Templates.
  */
-public class TemporalEntity {
+public interface TemporalEntity<ID, VALID_FROM, VALID_TO> extends Entity {
+    public Date getValidFrom();
+    public Date getValidTo();
+    public void setValidFrom(Date validFrom);
+    public void setValidTo(Date validTo);
+    public TemporalEntity<ID, VALID_FROM, VALID_TO> clone(Utils utils);
 }

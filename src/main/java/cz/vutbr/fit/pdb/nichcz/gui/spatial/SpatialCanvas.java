@@ -20,6 +20,7 @@ public class SpatialCanvas extends JPanel {
     public interface SelectedListener {
         void onSelected(SpatialEntity entity);
         void onUnselected(SpatialEntity entity);
+        void onDeleted();
     }
 
     private ArrayList<SelectedListener> selectedListeners = new ArrayList<>();
@@ -169,6 +170,11 @@ public class SpatialCanvas extends JPanel {
                 SpatialEntityCanvasItem i = (SpatialEntityCanvasItem) selected;
                 removeEntity(i.getEntity());
                 mapper.delete(i.getEntity());
+
+                for(SelectedListener listener : selectedListeners){
+                    listener.onDeleted();
+                }
+
                 repaint();
                 return;
             }

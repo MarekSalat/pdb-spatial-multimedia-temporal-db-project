@@ -4,12 +4,18 @@ import cz.vutbr.fit.pdb.nichcz.context.Context;
 import cz.vutbr.fit.pdb.nichcz.gui.dialogs.LoginDialog;
 import cz.vutbr.fit.pdb.nichcz.gui.media.MultimediaTabComponent;
 import cz.vutbr.fit.pdb.nichcz.gui.spatial.SpatialTabComponent;
+import cz.vutbr.fit.pdb.nichcz.gui.temporal.TemporalTabComponent;
 import cz.vutbr.fit.pdb.nichcz.setting.Environment;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
 /**
  * User: Marek Salát
@@ -18,6 +24,8 @@ import java.awt.event.WindowEvent;
  */
 public class Main {
     private static Context ctx = new Context();
+    private static JTabbedPane tabbedPane;
+    private static TemporalTabComponent temporalTabComponent;
     public static void main(String[] args) {
         Environment.context = ctx;
 
@@ -33,9 +41,19 @@ public class Main {
 
         JFrame frame = new JFrame("PDB");
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
+        temporalTabComponent = new TemporalTabComponent(ctx);
         tabbedPane.addTab("Spatial", new SpatialTabComponent(ctx).getContentPane());
+        tabbedPane.addTab("Temporal", temporalTabComponent.getContentPane());
         tabbedPane.addTab("Multimedia", new MultimediaTabComponent(ctx).getContentPane());
+
+        tabbedPane.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                if (tabbedPane.getSelectedIndex() == 1) {
+                    temporalTabComponent.updateTables();
+                }
+            }
+        });
 
         frame.setContentPane(tabbedPane);
 

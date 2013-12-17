@@ -1,6 +1,8 @@
 package cz.vutbr.fit.pdb.nichcz.model.spatial;
 
 import cz.vutbr.fit.pdb.nichcz.model.Entity;
+import cz.vutbr.fit.pdb.nichcz.model.temporal.TemporalEntity;
+import cz.vutbr.fit.pdb.nichcz.model.temporal.Utils;
 
 import java.awt.*;
 import java.awt.geom.Area;
@@ -14,19 +16,20 @@ import java.util.UUID;
  * Time: 18:03
  *
 
- DROP TABLE PDB_SPATIAL
+ DROP TABLE PDB_SPATIAL;
  CREATE TABLE PDB_SPATIAL
  (
-     ID VARCHAR2(64) PRIMARY KEY NOT NULL,
+     ID VARCHAR2(64) NOT NULL,
      OBJECT_TYPE VARCHAR2(16),
      CATEGORY nvarchar2(32),
-     GEOMETRY varchar2(4000),
+     GEOMETRY SDO_GEOMETRY,
      NAME nvarchar2(32),
      ADMIN nvarchar2(32),
      OWNER nvarchar2(32),
      NOTE nvarchar2(512),
-     VALID_FROM DATE NOT NULL,
-     VALID_TO DATE,
+     VALID_FROM NUMBER(20) NOT NULL,
+     VALID_TO NUMBER(20) NOT NULL,
+     CREATED DATE,
      MODIFIED DATE,
      SPECIAL_FIELD INTEGER
  );
@@ -45,7 +48,7 @@ import java.util.UUID;
 
  *
  */
-public class SpatialEntity implements Entity<Long>{
+public class SpatialEntity implements TemporalEntity<Long, Date, Date>{
     public static String TABLE="PDB_SPATIAL";
 
     public enum TYPE {
@@ -82,6 +85,7 @@ public class SpatialEntity implements Entity<Long>{
 
     public Date validFrom;
     public Date validTo;
+    public Date created;
     public Date modified;
 
     public double specialField;
@@ -171,20 +175,32 @@ public class SpatialEntity implements Entity<Long>{
         this.note = note;
     }
 
+    @Override
     public Date getValidFrom() {
         return validFrom;
     }
 
+    @Override
     public void setValidFrom(Date validFrom) {
         this.validFrom = validFrom;
     }
 
+    @Override
     public Date getValidTo() {
         return validTo;
     }
 
+    @Override
     public void setValidTo(Date validTo) {
         this.validTo = validTo;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     public Date getModified() {
@@ -222,5 +238,23 @@ public class SpatialEntity implements Entity<Long>{
                 ", modified=" + (modified != null ? simpleDateFormat.format(modified)  : "null") +
                 ", specialField=" + specialField +
                 "}";
+    }
+
+    public SpatialEntity clone(Utils utils) {
+        SpatialEntity entity = new SpatialEntity();
+        entity.setId(getId());
+        entity.setObjectType(getObjectType());
+        entity.setCategory(getCategory());
+        entity.setGeometry(getGeometry());
+        entity.setName(getName());
+        entity.setAdmin(getAdmin());
+        entity.setOwner(getOwner());
+        entity.setNote(getNote());
+        entity.setValidFrom( utils.daysToDate(utils.dateToDays(getValidFrom())) );
+        entity.setValidTo( utils.daysToDate(utils.dateToDays(getValidTo())) );
+        entity.setCreated(getCreated());
+        entity.setModified(getModified());
+        entity.setSpecialField(getSpecialField());
+        return entity;
     }
 }
