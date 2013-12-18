@@ -27,7 +27,7 @@ public class MediaDBMapper extends AbstractDBMapper<MediaEntity, Long> {
 
     /**
      * Vytvori novy MediaDBMapper.
-     * @param ctx Kontext s pripojenim na databazi
+     * @param ctx Kontext s pripojenim na databazi.
      */
     public MediaDBMapper(Context ctx) {
         super(ctx);
@@ -68,8 +68,8 @@ public class MediaDBMapper extends AbstractDBMapper<MediaEntity, Long> {
 
     /**
      * Nahraje obrazek do databaze.
-     * @param e Entita, do ktere se nahraje obrazek
-     * @param filePath Cesta k souboru obrazku
+     * @param e Entita, do ktere se nahraje obrazek.
+     * @param filePath Cesta k souboru obrazku.
      */
     public void loadImageFromFile(MediaEntity e, String filePath) {
         try {
@@ -207,8 +207,8 @@ public class MediaDBMapper extends AbstractDBMapper<MediaEntity, Long> {
 
     /**
      * Hleda entitu pro aktualizaci podle ID.
-     * @param id ID entity, ktera se hleda
-     * @return Vraci nalezenou entitu
+     * @param id ID entity, ktera se hleda.
+     * @return Vraci nalezenou entitu.
      */
     public MediaEntity findByIdForUpdate(Long id) {
         MediaEntity e = new MediaEntity();
@@ -237,8 +237,8 @@ public class MediaDBMapper extends AbstractDBMapper<MediaEntity, Long> {
 
     /**
      * Hleda podobne obrazky jako je obrazek entity s ID.
-     * @param id ID entity, pro kterou se hleda podobnost
-     * @return Vraci seznam entit s podobnymi obrazky
+     * @param id ID entity, pro kterou se hleda podobnost.
+     * @return Vraci seznam entit s podobnymi obrazky.
      */
     public List<MediaEntity> findSimilar(Long id) {
         List<MediaEntity> res = new ArrayList<>();

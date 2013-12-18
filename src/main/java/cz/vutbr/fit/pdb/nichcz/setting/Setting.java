@@ -7,8 +7,13 @@ import java.io.Serializable;
  * User: Marek Salát
  * Date: 6.10.13
  * Time: 20:52
+ *
+ * Trida reprezentujici nastaveni aplikace.
  */
 public class Setting implements Serializable {
+    /**
+     * Trida uzivatele.
+     */
     public class User {
         public String name = "";
         public String password = "";
@@ -17,6 +22,9 @@ public class Setting implements Serializable {
 
         public boolean rememberCredentials = false;
 
+        /**
+         * Vytvori noveho uzivatele.
+         */
         public User(){
             String name = System.getProperty("name");
             String pass = System.getProperty("password");
@@ -66,6 +74,9 @@ public class Setting implements Serializable {
 
     public String connectionString = "";
 
+    /**
+     * Trida okna aplikace.
+     */
     public class Window {
         public short maxX = 640;
         public short maxY = 480;
@@ -73,6 +84,9 @@ public class Setting implements Serializable {
     }
     public Window window = new Window();
 
+    /**
+     * Vycet barev.
+     */
     public enum Colors {
         emerald(0x2ecc71),
         nephritis( 0x27ae60),

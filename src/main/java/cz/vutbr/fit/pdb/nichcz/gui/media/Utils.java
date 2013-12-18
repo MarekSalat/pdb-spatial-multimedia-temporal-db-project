@@ -34,8 +34,8 @@ public class Utils {
 
     /**
      * Ziska priponu souboru.
-     * @param f Vstupni soubor
-     * @return Vraci priponu souboru
+     * @param f Vstupni soubor.
+     * @return Vraci priponu souboru.
      */
     public static String getExtension(File f) {
         String ext = null;

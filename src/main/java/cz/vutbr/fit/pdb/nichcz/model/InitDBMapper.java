@@ -25,7 +25,7 @@ public class InitDBMapper {
 
     /**
      * Vytvori novy InitDBMapper
-     * @param ctx Kontext s pripojenim na databazi
+     * @param ctx Kontext s pripojenim na databazi.
      */
     public InitDBMapper(Context ctx) {
         this.ctx = ctx;

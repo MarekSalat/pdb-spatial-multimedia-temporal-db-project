@@ -12,6 +12,8 @@ import java.sql.SQLException;
  * User: Marek Salát
  * Date: 3.12.13
  * Time: 15:03
+ *
+ * Trida sluzby spojeni s databazi.
  */
 public class ConnectionService implements Service {
 
@@ -19,10 +21,18 @@ public class ConnectionService implements Service {
     Connection conn = null;
     private Context ctx;
 
+    /**
+     * Vytvori nove ConnectionService.
+     * @param ctx Kontext s pripojenim na databazi.
+     */
     public ConnectionService(Context ctx) {
         this.ctx = ctx;
     }
 
+    /**
+     * Ziska spojeni s databazi.
+     * @return Vraci spojeni.
+     */
     public Connection getConnection(){
         if(conn != null) return conn;
 

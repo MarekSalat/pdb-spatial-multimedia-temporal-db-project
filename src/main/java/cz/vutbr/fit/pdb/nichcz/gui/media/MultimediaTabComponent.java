@@ -54,7 +54,7 @@ public class MultimediaTabComponent extends BaseFrame {
 
     /**
      * Vytvori novy formular MultimediaTabComponent pro zalozku hlavni aplikace.
-     * @param ctx Kontext s pripojenim na databazi
+     * @param ctx Kontext s pripojenim na databazi.
      */
     public MultimediaTabComponent(Context ctx) {
         super(ctx);

@@ -41,7 +41,7 @@ public class MediaTableModel implements TableModel {
 
     /**
      * Vytvori MediaTableModel.
-     * @param entities Seznam entit z databaze
+     * @param entities Seznam entit z databaze.
      */
     public MediaTableModel(List<MediaEntity> entities) {
         this.entities = entities;

@@ -16,6 +16,8 @@ import java.awt.event.WindowEvent;
  * User: Marek Salát
  * Date: 6.10.13
  * Time: 17:01
+ *
+ * Hlavni trida pro spusteni aplikace a zobrazeni GUI.
  */
 public class Main {
     private static Context ctx = new Context();
