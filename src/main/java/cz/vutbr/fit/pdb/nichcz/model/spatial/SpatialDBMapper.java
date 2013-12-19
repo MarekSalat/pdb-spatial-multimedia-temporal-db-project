@@ -3,6 +3,7 @@ package cz.vutbr.fit.pdb.nichcz.model.spatial;
 import cz.vutbr.fit.pdb.nichcz.Util;
 import cz.vutbr.fit.pdb.nichcz.context.Context;
 import cz.vutbr.fit.pdb.nichcz.model.AbstractDBMapper;
+import cz.vutbr.fit.pdb.nichcz.model.temporal.Utils;
 import oracle.spatial.geometry.JGeometry;
 
 import java.awt.*;
@@ -10,6 +11,7 @@ import java.awt.geom.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
     private static final int SRID = 0;
     private static final AffineTransform DEFAULT_AT = new AffineTransform();
+    public Utils utils = new Utils();
 
     public SpatialDBMapper(Context ctx) {
         super(ctx);
@@ -30,17 +33,23 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
     @Override
     public SpatialEntity create() {
         SpatialEntity e = new SpatialEntity();
-        e.setValidFrom(new Date());
+        e.setValidFrom(utils.getActualDate());
+        e.setValidTo(utils.getInfinity());
+        e.setCreated(new Date());
+
+        Date d = new Date();
+
         try ( PreparedStatement stmt = getConnection()
             .prepareStatement("insert into " + e.getTable() +
-                "       (id, object_type,valid_from) " +
-                "VALUES (?,  ?,          ?)");
+                "       (id, object_type,valid_from,valid_to,created) " +
+                "VALUES (?,  ?,          ?,         ?,       ?)");
         ){
             int i=1;
             stmt.setString(i++, String.valueOf(e.getId()));
             stmt.setString(i++, String.valueOf(e.getObjectType()));
-            e.setValidFrom(new Date());
-            stmt.setDate(i++, new java.sql.Date(e.getValidFrom().getTime()) );
+            stmt.setLong(i++, utils.dateToDays(e.getValidFrom()));
+            stmt.setLong(i++, utils.dateToDays(e.getValidTo()));
+            stmt.setDate(i++, new java.sql.Date(e.getCreated().getTime()) );
 
             stmt.executeUpdate();
         } catch (SQLException ex) {ex.printStackTrace();  throw new RuntimeException(ex); }
@@ -48,17 +57,18 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
         return e;
     }
 
-    @Override
-    public void save(SpatialEntity e) {
-        e.setModified(new Date());
+    public void insert(SpatialEntity e) {
+        e.setCreated(new Date());
 
         try ( PreparedStatement stmt = getConnection()
-            .prepareStatement("update " + e.getTable() + " set " +
-                    "object_type=?, category=?,geometry=?,name=?,admin=?,owner=?,note=?,valid_to=?,modified=? where id=?")
+                .prepareStatement("insert into " + e.getTable() +
+                        "       (id, object_type,category,geometry,name,admin,owner,note,valid_from,valid_to,created,modified) " +
+                        "VALUES (?,  ?,          ?,       ?,       ?,    ?,   ?,    ?,   ?,         ?,       ?,      ?)");
         ){
             int i=1;
+            stmt.setString(i++, String.valueOf(e.getId()));
             stmt.setString(i++, String.valueOf(e.getObjectType()));
-            stmt.setString(i++, e.getCategory());
+            stmt.setString(i++, String.valueOf(e.getCategory()));
             JGeometry jGeometry = shape2jGeometry(e.getGeometry(), e.getObjectType());
             stmt.setObject(i++,  jGeometry != null ? JGeometry.store(getConnection(), jGeometry) : null);
             stmt.setString(i++, e.getName());
@@ -66,13 +76,11 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
             stmt.setString(i++, e.getOwner());
             stmt.setString(i++, e.getNote());
 
-            Date validTo = e.getValidTo();
-            stmt.setDate(i++, validTo != null ? new java.sql.Date(validTo.getTime()) : null);
+            stmt.setLong(i++, utils.dateToDays(e.getValidFrom()));
+            stmt.setLong(i++, utils.dateToDays(e.getValidTo()));
+            stmt.setDate(i++, new java.sql.Date(e.getCreated().getTime()) );
+            stmt.setDate(i++, new java.sql.Date(e.getModified().getTime()) );
 
-            e.setModified(new Date());
-            stmt.setDate(i++, new java.sql.Date(e.getModified().getTime()));
-
-            stmt.setString(i++, String.valueOf(e.getId()));
             stmt.executeUpdate();
         }
         catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex); }
@@ -80,8 +88,16 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
     }
 
     @Override
+    public void save(SpatialEntity e) {
+
+        temporalUpdate(e);
+
+    }
+
+    @Override
     public void delete(SpatialEntity e) {
-        try ( PreparedStatement stmt = getConnection().prepareStatement("delete from " + e.getTable() + " where id = ?")){
+        String where = " AND VALID_FROM = " + utils.dateToDays(e.getValidFrom()) + " AND VALID_TO = " + utils.dateToDays(e.getValidTo());
+        try ( PreparedStatement stmt = getConnection().prepareStatement("delete from " + e.getTable() + " where id = ? "+where)){
             stmt.setString(1, String.valueOf(e.getId()));
             stmt.execute();
         } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex); }
@@ -123,9 +139,172 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
         e.setOwner(rset.getString("owner"));
         e.setNote(rset.getString("note"));
 
-        e.setValidFrom(rset.getDate("valid_from"));
-        e.setValidTo(rset.getDate("valid_to"));
+        e.setValidFrom(utils.daysToDate(rset.getLong("valid_from")));
+        e.setValidTo(utils.daysToDate(rset.getLong("valid_to")));
+        e.setCreated(rset.getDate("created"));
         e.setModified(rset.getDate("modified"));
+    }
+
+    public void temporalDelete(SpatialEntity e, Date from, Date to) {
+        try {
+            getConnection().setAutoCommit(false);
+        } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
+
+        Utils.MATCH_TYPE match;
+        String where_ = " ID = '" + e.getId().toString()+"'";
+
+        for (SpatialEntity entity : findWhere(where_)) {
+            match = utils.findMatch(entity.getValidFrom(), entity.getValidTo(), from, to);
+
+            if (match == Utils.MATCH_TYPE.INSIDE) {
+                delete(entity);
+            }
+            else if (match == Utils.MATCH_TYPE.LEFT_OVERLAP) {
+                delete(entity);
+
+                entity.setValidTo(from);
+                insert(entity);
+            }
+            else if (match == Utils.MATCH_TYPE.RIGHT_OVERLAP) {
+                delete(entity);
+                entity.setValidFrom(to);
+                insert(entity);
+            }
+            else if (match == Utils.MATCH_TYPE.CONTAINS) {
+                delete(entity);
+                SpatialEntity entityClone = entity.clone(utils);
+
+                entity.setValidTo(from);
+                insert(entity);
+                entityClone.setValidFrom(to);
+                insert(entityClone);
+            }
+
+        }
+
+        try {
+            getConnection().commit();
+            getConnection().setAutoCommit(true);
+        } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
+    }
+
+    public void temporalUpdate(SpatialEntity e) {
+        try {
+            getConnection().setAutoCommit(false);
+        } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
+
+        Utils.MATCH_TYPE match;
+        String where_ = " ID = '" + e.getId().toString()+"'";
+
+        for (SpatialEntity entity : findWhere(where_)) {
+            match = utils.findMatch(entity.getValidFrom(), entity.getValidTo(), e.getValidFrom(), e.getValidTo());
+
+            if (match == Utils.MATCH_TYPE.INSIDE) {
+                delete(entity);
+            }
+            else if (match == Utils.MATCH_TYPE.LEFT_OVERLAP) {
+                delete(entity);
+
+                entity.setValidTo(e.getValidFrom());
+                insert(entity);
+            }
+            else if (match == Utils.MATCH_TYPE.RIGHT_OVERLAP) {
+                delete(entity);
+                entity.setValidFrom(e.getValidTo());
+                insert(entity);
+            }
+            else if (match == Utils.MATCH_TYPE.CONTAINS) {
+                delete(entity);
+                SpatialEntity entityClone = entity.clone(utils);
+
+                entity.setValidTo(e.getValidFrom());
+                insert(entity);
+                entityClone.setValidFrom(e.getValidTo());
+                insert(entityClone);
+            }
+
+        }
+
+        e.setModified(new Date());
+        insert(e);
+
+        try {
+            getConnection().commit();
+            getConnection().setAutoCommit(true);
+        } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
+    }
+
+    public void ordinaryUpdate(SpatialEntity e, String where) {
+
+        try ( PreparedStatement stmt = getConnection()
+                .prepareStatement("update " + e.getTable() + " set " +
+                        "object_type=?, category=?,geometry=?,name=?,admin=?,owner=?,note=?,valid_from=?,valid_to=?,modified=? where id=? " + where)
+        ){
+            int i=1;
+            stmt.setString(i++, String.valueOf(e.getObjectType()));
+            stmt.setString(i++, e.getCategory());
+            JGeometry jGeometry = shape2jGeometry(e.getGeometry(), e.getObjectType());
+            stmt.setObject(i++,  jGeometry != null ? JGeometry.store(getConnection(), jGeometry) : null);
+            stmt.setString(i++, e.getName());
+            stmt.setString(i++, e.getAdmin());
+            stmt.setString(i++, e.getOwner());
+            stmt.setString(i++, e.getNote());
+
+            Date validFrom = e.getValidFrom();
+            stmt.setLong(i++, validFrom != null ? utils.dateToDays(validFrom) : null);
+
+            Date validTo = e.getValidTo();
+            stmt.setLong(i++, validTo != null ? utils.dateToDays(validTo) : null);
+
+            e.setModified(new Date());
+            stmt.setDate(i++, new java.sql.Date(e.getModified().getTime()));
+
+            stmt.setString(i++, String.valueOf(e.getId()));
+            stmt.executeUpdate();
+        }
+        catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex); }
+        catch (Exception ex) { ex.printStackTrace(); throw new RuntimeException(ex); }
+
+    }
+
+    public List<SpatialEntity> selectValidFuse(String where, String fuseBy) {
+
+        List<SpatialEntity> res = new ArrayList<>();
+        String order = " order by ID asc, VALID_FROM asc, VALID_TO asc";
+        try (
+                ResultSet rset = getConnection().prepareStatement("select * from " + SpatialEntity.TABLE + " " + where + order).executeQuery();
+        ){
+            while (rset.next()) {
+                SpatialEntity e = new SpatialEntity();
+                resultSetToEntity(rset, e);
+                res.add(e);
+            }
+        } catch (Exception ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
+
+        List<SpatialEntity> res2 = new ArrayList<>();
+        SpatialEntity en1 = null, en2;
+        Integer size = res.size();
+
+        for (Integer i = 0, e = 1; e < size; i++, e++) {
+            en1 = res.get(i);
+            en2 = res.get(e);
+
+            if (en1.getId().longValue() == en2.getId().longValue()
+                    && en1.getValidTo().compareTo(en2.getValidFrom()) == 0) {
+                en2.setValidFrom(en1.getValidFrom());
+            }
+            else {
+                res2.add(en1);
+
+            }
+            en1 = null;
+        }
+
+        if (en1 == null && size > 0) {
+            res2.add(res.get(size - 1));
+        }
+
+        return res2;
     }
 
     public double getGeometryArea(SpatialEntity entity){
@@ -338,5 +517,7 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
     public static JGeometry ellipse2jGeometry(Ellipse2D e){
         return JGeometry.createCircle(e.getCenterX(), e.getCenterY(), e.getWidth()/2, SRID);
     }
+
+
 }
 

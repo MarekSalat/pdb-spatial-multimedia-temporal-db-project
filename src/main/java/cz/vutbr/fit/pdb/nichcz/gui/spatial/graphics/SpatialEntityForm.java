@@ -4,11 +4,16 @@ import cz.vutbr.fit.pdb.nichcz.context.Context;
 import cz.vutbr.fit.pdb.nichcz.gui.BaseFrame;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialDBMapper;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialEntity;
+import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * User: Marek Salát
@@ -30,8 +35,8 @@ public class SpatialEntityForm extends BaseFrame{
     private JLabel owner;
     private JLabel note;
     private JLabel typeValue;
-    private JLabel validFromValue;
-    private JLabel validToValue;
+    // private JLabel validFromValue;
+    // private JLabel validToValue;
     private JLabel modifiedVaule;
     private JLabel validFrom;
     private JLabel validTo;
@@ -41,9 +46,20 @@ public class SpatialEntityForm extends BaseFrame{
     private JLabel category;
     private JButton save;
     private JButton delete;
+    private JXDatePicker validFromValue;
+    private JXDatePicker validToValue;
+    private JXDatePicker deleteFromValue;
+    private JXDatePicker deleteToValue;
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
 
     public interface OnDeleteListener {
         void onDelete(SpatialEntity entity);
+    };
+    public interface OnSaveListener {
+        void onSave(SpatialEntity entity);
     };
 
     public SpatialEntityForm(Context ctx, SpatialDBMapper mapper, SpatialEntity spatialEntity) {
@@ -63,6 +79,11 @@ public class SpatialEntityForm extends BaseFrame{
             }
         });
 
+        validFromValue.setFormats(DateFormat.getDateInstance());
+        validToValue.setFormats(DateFormat.getDateInstance());
+        deleteFromValue.setFormats(DateFormat.getDateInstance());
+        deleteToValue.setFormats(DateFormat.getDateInstance());
+
         setEntity(spatialEntity);
     }
 
@@ -78,8 +99,32 @@ public class SpatialEntityForm extends BaseFrame{
         onDeleteListeners.remove(onDeleteListener);
     }
 
+    private ArrayList<OnSaveListener> onSaveListeners = new ArrayList<>();
+    public void addListener(OnSaveListener onSaveListener){
+        onSaveListeners.add(onSaveListener);
+    }
+    public void removeListener(OnSaveListener onSaveListener){
+        onSaveListeners.remove(onSaveListener);
+    }
+
     private void buttonDelete() {
-        mapper.delete(entity);
+        if (deleteFromValue.getDate() == null || deleteToValue.getDate() == null) {
+            mapper.delete(entity);
+        }
+        else {
+
+            if (deleteFromValue.getDate().getTime() >= deleteToValue.getDate().getTime()) {
+                JOptionPane.showMessageDialog(panel, "Delete from must be lesser than delete to.",
+                        "Date error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Date from =  deleteFromValue.getDate();
+            Date to =  deleteToValue.getDate();
+            mapper.temporalDelete(entity, from, to);
+
+        }
 
         for(OnDeleteListener listener: onDeleteListeners){
             listener.onDelete(entity);
@@ -112,19 +157,37 @@ public class SpatialEntityForm extends BaseFrame{
     }
 
     private void buttonSave() {
+        if (validFromValue.getDate() == null || validToValue.getDate() == null) {
+            JOptionPane.showMessageDialog(panel, "Valid from and valid to must be in date format dd.mm.yyyy",
+                    "Date error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (validFromValue.getDate().getTime() >= validToValue.getDate().getTime()) {
+            JOptionPane.showMessageDialog(panel, "Valid from must be lesser than valid to.",
+                    "Date error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         getData(entity);
         mapper.save(entity);
+
+        for(OnSaveListener listener: onSaveListeners){
+            listener.onSave(entity);
+        }
     }
 
     public void setData(SpatialEntity data) {
+
         typeValue.setText(data != null ? data.getObjectType().toString() : "");
         nameTextField.setText(data != null ? data.getName() : "");
         adminTextField.setText(data != null ? data.getAdmin() : "");
         ownerTextField.setText(data != null ? data.getOwner() : "");
         noteTextPane.setText(data != null ? data.getNote() : "");
         categoryTextField.setText(data != null ? data.getCategory() : "");
-        validFromValue.setText(data != null && data.getValidFrom() != null ? data.getValidFrom().toString() : "");
-        validToValue.setText(data != null && data.getValidTo() != null ? data.getValidTo().toString() : "");
+        validFromValue.setDate(data != null ? data.getValidFrom() : null); // setText(data != null && data.getValidFrom() != null ? data.getValidFrom().toString() : "");
+        validToValue.setDate(data != null ? data.getValidTo() : null); // setText(data != null && data.getValidTo() != null ? data.getValidTo().toString() : "");
         modifiedVaule.setText(data != null && data.getModified() != null ? data.getModified().toString() : "");
     }
 
@@ -136,6 +199,8 @@ public class SpatialEntityForm extends BaseFrame{
         data.setOwner(ownerTextField.getText());
         data.setNote(noteTextPane.getText());
         data.setCategory(categoryTextField.getText());
+        data.setValidFrom(validFromValue.getDate());
+        data.setValidTo(validToValue.getDate());
     }
 
     public boolean isModified(SpatialEntity data) {
@@ -151,6 +216,11 @@ public class SpatialEntityForm extends BaseFrame{
             return true;
         if (categoryTextField.getText() != null ? !categoryTextField.getText().equals(data.getCategory()) : data.getCategory() != null)
             return true;
+        if (validFromValue.getDate() != null ? !validFromValue.getDate().equals(data.getValidFrom()) : data.getValidFrom() != null)
+            return true;
+        if (validToValue.getDate() != null ? !validToValue.getDate().equals(data.getValidFrom()) : data.getValidTo() != null)
+            return true;
         return false;
     }
+
 }

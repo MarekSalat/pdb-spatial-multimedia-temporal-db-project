@@ -6,8 +6,11 @@ import cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics.SpatialEntityForm;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.Point2DShape;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialDBMapper;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialEntity;
+import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -16,7 +19,11 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * User: Marek Salát
@@ -35,7 +42,9 @@ public class SpatialTabComponent extends BaseFrame {
     private JTextArea entityInfo;
     private JPanel selectors;
     private JTextArea generalInfo;
-
+    private JXDatePicker dateSelector;
+    private JTable entityHistoryTable;
+    private JTable entityTable;
     private Point2D lastPosition = new Point2D.Double();
     private SpatialDBMapper mapper;
 
@@ -57,6 +66,9 @@ public class SpatialTabComponent extends BaseFrame {
             }
         });
 
+        dateSelector.setDate(new Date());
+        dateSelector.setFormats(DateFormat.getDateInstance());
+
         selectorsChanged(null);
 
         canvas.addMouseListener(new MouseInputAdapter() {
@@ -64,6 +76,39 @@ public class SpatialTabComponent extends BaseFrame {
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
                 lastPosition.setLocation(e.getPoint());
+            }
+        });
+        dateSelector.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+                selectorsChanged(new ActionEvent(propertyChangeEvent, 1, ""));
+            }
+        });
+
+        updateEntityTable();
+
+        entityTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent event) {
+                Integer row = entityTable.getSelectedRow();
+
+                if (row < 0) { return; }
+
+                Long id = (Long) entityTable.getValueAt(row, 0);
+                updateEntityHistoryTable(id);
+            }
+        });
+        entityHistoryTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent event) {
+                Integer row = entityHistoryTable.getSelectedRow();
+
+                if (row < 0) {
+                    selectorsChanged(new ActionEvent(1,1,""));
+                    return;
+                }
+
+                Date from = (Date) entityHistoryTable.getValueAt(row, 3);
+
+                dateSelector.setDate(from);
             }
         });
     }
@@ -130,6 +175,8 @@ public class SpatialTabComponent extends BaseFrame {
         canvas.repaint();
         entitySelected(entity);
 
+        updateEntityTable();
+
         statusValue.setText("Entity with has been created.");
     }
 
@@ -151,6 +198,14 @@ public class SpatialTabComponent extends BaseFrame {
             public void onUnselected(SpatialEntity entity) {
                 entityUnselected(entity);
             }
+
+            @Override
+            public void onDeleted() {
+                selectorsChanged(new ActionEvent(1,1,""));
+                updateEntityTable();
+                updateEntityHistoryTable(Long.valueOf(0));
+            }
+
         });
 
         entityForm = new SpatialEntityForm(getContext(), getMapper());
@@ -158,7 +213,19 @@ public class SpatialTabComponent extends BaseFrame {
             @Override
             public void onDelete(SpatialEntity entity) {
                 entityOnDeleted(entity);
+                updateEntityTable();
+                updateEntityHistoryTable(Long.valueOf(0));
                 statusValue.setText("Entity with has been deleted.");
+            }
+        });
+        entityForm.addListener(new SpatialEntityForm.OnSaveListener() {
+            @Override
+            public void onSave(SpatialEntity entity) {
+                entityHistoryTable.removeAll();
+                updateEntityTable();
+                updateEntityHistoryTable(Long.valueOf(0));
+
+                statusValue.setText("Entity with has been updated.");
             }
         });
 
@@ -183,7 +250,6 @@ public class SpatialTabComponent extends BaseFrame {
             });
         }
 
-
         selectors.revalidate();
         selectors.repaint();
     }
@@ -200,13 +266,24 @@ public class SpatialTabComponent extends BaseFrame {
         if(j == 0) where += "'null'";
         where += ")";
 
+        Date date = dateSelector.getDate();
+        Long days = mapper.utils.dateToDays(date);
+        if (date != null) {
+            where += " AND VALID_FROM <= " + days;
+            where += " AND VALID_TO > " + days;
+        }
+
+        Integer row = entityHistoryTable.getSelectedRow();
+        if (row >= 0) {
+            Long id = (Long) entityHistoryTable.getValueAt(row, 0);
+            where += " AND ID = " + id;
+        }
+
         canvas.removeAllEntities();
         for(SpatialEntity entity : mapper.findWhere(where)){
             canvas.addEntityAsDraggable(entity);
         }
         canvas.repaint();
-
-        System.out.println(where);
     }
 
     private SpatialEntity curr;
@@ -249,5 +326,15 @@ public class SpatialTabComponent extends BaseFrame {
 
     private void entityUnselected(SpatialEntity entity) {
         entityForm.setEntity(null);
+    }
+
+    private void updateEntityTable() {
+        SpatialTableModel spatialTableModel = new SpatialTableModel(mapper.selectValidFuse("", "ID"));
+        entityTable.setModel(spatialTableModel);
+    }
+
+    private void updateEntityHistoryTable(Long id) {
+        SpatialTableModel spatialTableModel = new SpatialTableModel(mapper.findWhere(" ID = " + id + " order by VALID_FROM asc"));
+        entityHistoryTable.setModel(spatialTableModel);
     }
 }
