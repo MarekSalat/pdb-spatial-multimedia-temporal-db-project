@@ -80,7 +80,12 @@ public class InitDBMapper {
                 String anInst = inst[i];
                 if (!anInst.trim().equals("")) {
                     System.out.println(i + ": " + anInst);
-                    stmt.executeUpdate(anInst);
+
+                    try {
+                        stmt.executeUpdate(anInst);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
 
