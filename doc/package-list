@@ -1,0 +1,16 @@
+cz.vutbr.fit.pdb.nichcz
+cz.vutbr.fit.pdb.nichcz.context
+cz.vutbr.fit.pdb.nichcz.gui
+cz.vutbr.fit.pdb.nichcz.gui.dialogs
+cz.vutbr.fit.pdb.nichcz.gui.media
+cz.vutbr.fit.pdb.nichcz.gui.spatial
+cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics
+cz.vutbr.fit.pdb.nichcz.gui.temporal
+cz.vutbr.fit.pdb.nichcz.model
+cz.vutbr.fit.pdb.nichcz.model.media
+cz.vutbr.fit.pdb.nichcz.model.spatial
+cz.vutbr.fit.pdb.nichcz.model.spatial.test
+cz.vutbr.fit.pdb.nichcz.model.temporal
+cz.vutbr.fit.pdb.nichcz.services
+cz.vutbr.fit.pdb.nichcz.services.impl
+cz.vutbr.fit.pdb.nichcz.setting

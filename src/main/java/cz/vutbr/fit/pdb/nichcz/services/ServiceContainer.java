@@ -1,7 +1,5 @@
 package cz.vutbr.fit.pdb.nichcz.services;
 
-import sun.plugin.dom.exception.InvalidStateException;
-
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -42,7 +40,7 @@ public class ServiceContainer implements Service{
      */
     public void addService(String name, ServiceFactory service){
         if(hasServices(name))
-            throw new InvalidStateException("Service with '" + name + "'name has been already registered.");
+            throw new IllegalStateException("Service with '" + name + "'name has been already registered.");
 
         this.registered.put(name, service);
     }

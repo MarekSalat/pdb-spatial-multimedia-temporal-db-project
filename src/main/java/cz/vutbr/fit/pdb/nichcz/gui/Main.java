@@ -48,6 +48,13 @@ public class Main {
     private static void createAndShowGUI(final Context ctx) {
         initLookAndFeel();
 
+        JFrame frame = new JFrame("PDB");
+
+        if(!ctx.isUserLogged()) {
+            LoginDialog loginDialog = new LoginDialog(frame, ctx);
+            loginDialog.setVisible(true);
+        }
+
         if (initDB) {
             InitDBMapper initDBMapper = new InitDBMapper(ctx);
 //            System.out.println(initDBMapper.initDB());
@@ -60,8 +67,6 @@ public class Main {
 
             initDBMapper.loadMedia();
         }
-
-        JFrame frame = new JFrame("PDB");
 
         tabbedPane = new JTabbedPane();
         temporalTabComponent = new TemporalTabComponent(ctx);
@@ -96,13 +101,6 @@ public class Main {
         frame.setMinimumSize(d);
         frame.setVisible(true);
         frame.pack();
-
-        System.out.println(ctx.setting.user);
-
-        if(ctx.isUserLogged()) return;
-
-        LoginDialog loginDialog = new LoginDialog(frame, ctx);
-        loginDialog.setVisible(true);
     }
 
     private static void initLookAndFeel() {

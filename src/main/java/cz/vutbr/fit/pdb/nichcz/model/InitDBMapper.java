@@ -64,7 +64,7 @@ public class InitDBMapper {
         StringBuilder sb = new StringBuilder();
 
         try {
-            FileReader fr = new FileReader(new File(ClassLoader.getSystemResource("initDB.sql").toURI()));
+            FileReader fr = new FileReader(new File("resources\\initDB.sql"));
             BufferedReader br = new BufferedReader(fr);
 
             while ((s = br.readLine()) != null) {
@@ -99,8 +99,6 @@ public class InitDBMapper {
         } catch (IOException ex) {
             ex.printStackTrace();
 //            throw new RuntimeException(ex);
-        } catch (URISyntaxException ex) {
-            ex.printStackTrace();
         } catch (NullPointerException ex) {
             ex.printStackTrace();
         }
@@ -134,7 +132,7 @@ public class InitDBMapper {
 
                 for (String fileName : fileNames) {
                     try {
-                        file = new File(ClassLoader.getSystemResource(fileName).toURI());
+                        file = new File("resources\\" + fileName);
 
                         System.out.println("Opening: " + file.getPath() + ".");
 
@@ -144,8 +142,6 @@ public class InitDBMapper {
                         mapper.loadImageFromFile(e, file.getPath());
 
                         mapper.save(e);
-                    } catch (URISyntaxException ex) {
-                        ex.printStackTrace();
                     } catch (NullPointerException ex) {
                         ex.printStackTrace();
                     }

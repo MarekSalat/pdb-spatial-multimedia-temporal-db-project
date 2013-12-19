@@ -14,7 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class SpatialCanvas extends JPanel {
     public interface SelectedListener {
@@ -97,10 +100,11 @@ public class SpatialCanvas extends JPanel {
 
         Image img = null;
         try {
-             img = ImageIO.read(new File(ClassLoader.getSystemResource("mapa.png").toURI()));
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
+            img = ImageIO.read(new File("resources\\mapa.png"));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+
         return img;
     }
 
