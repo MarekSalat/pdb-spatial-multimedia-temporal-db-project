@@ -79,10 +79,10 @@ public class SpatialEntityForm extends BaseFrame{
             }
         });
 
-        validFromValue.setFormats(DateFormat.getDateInstance());
-        validToValue.setFormats(DateFormat.getDateInstance());
-        deleteFromValue.setFormats(DateFormat.getDateInstance());
-        deleteToValue.setFormats(DateFormat.getDateInstance());
+        validFromValue.setFormats(new String[]{"d.MM.yyyy"});
+        validToValue.setFormats(new String[]{"d.MM.yyyy"});
+        deleteFromValue.setFormats(new String[]{"d.MM.yyyy"});
+        deleteToValue.setFormats(new String[]{"d.MM.yyyy"});
 
         setEntity(spatialEntity);
     }

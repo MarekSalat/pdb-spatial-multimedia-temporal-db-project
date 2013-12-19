@@ -67,7 +67,7 @@ public class SpatialTabComponent extends BaseFrame {
         });
 
         dateSelector.setDate(new Date());
-        dateSelector.setFormats("d.MM.yyyy");
+        dateSelector.setFormats(new String[]{"d.MM.yyyy"});
 
         selectorsChanged(null);
 

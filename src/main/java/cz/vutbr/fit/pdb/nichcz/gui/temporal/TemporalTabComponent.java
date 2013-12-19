@@ -85,12 +85,12 @@ public class TemporalTabComponent extends BaseFrame {
         b_.mapper = companyDBMapper;
         loggingHistoryDBMapper.addBound(b_);
 
-        companyValidFrom.setFormats("d.MM.yyyy");
-        companyValidTo.setFormats("d.MM.yyyy");
-        loggingHistoryValidFrom.setFormats("d.MM.yyyy");
-        loggingHistoryValidTo.setFormats("d.MM.yyyy");
-        productionFrom.setFormats("d.MM.yyyy");
-        productionTo.setFormats("d.MM.yyyy");
+        companyValidFrom.setFormats(new String[]{"d.MM.yyyy"});
+        companyValidTo.setFormats(new String[]{"d.MM.yyyy"});
+        loggingHistoryValidFrom.setFormats(new String[]{"d.MM.yyyy"});
+        loggingHistoryValidTo.setFormats(new String[]{"d.MM.yyyy"});
+        productionFrom.setFormats(new String[]{"d.MM.yyyy"});
+        productionTo.setFormats(new String[]{"d.MM.yyyy"});
 
         addCompany.addActionListener(new ActionListener() {
             @Override
