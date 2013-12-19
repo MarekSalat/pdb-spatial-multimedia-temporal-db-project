@@ -65,11 +65,12 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
      */
     public void insert(SpatialEntity e) {
         e.setCreated(new Date());
+        e.setModified(new Date());
 
         try ( PreparedStatement stmt = getConnection()
                 .prepareStatement("insert into " + e.getTable() +
-                        "       (id, object_type,category,geometry,name,admin,owner,note,valid_from,valid_to,created,modified) " +
-                        "VALUES (?,  ?,          ?,       ?,       ?,    ?,   ?,    ?,   ?,         ?,       ?,      ?)");
+                        "       (id, object_type,category,geometry,name,admin,owner,note,valid_from,valid_to) " +
+                        "VALUES (?,  ?,          ?,       ?,       ?,    ?,   ?,    ?,   ?,         ?       )");
         ){
             int i=1;
             stmt.setString(i++, String.valueOf(e.getId()));
@@ -84,8 +85,8 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
 
             stmt.setLong(i++, utils.dateToDays(e.getValidFrom()));
             stmt.setLong(i++, utils.dateToDays(e.getValidTo()));
-            stmt.setDate(i++, new java.sql.Date(e.getCreated().getTime()) );
-            stmt.setDate(i++, new java.sql.Date(e.getModified().getTime()) );
+//            stmt.setDate(i++, new java.sql.Date(e.getCreated().getTime()) );
+//            stmt.setDate(i++, new java.sql.Date(e.getModified().getTime()) );
 
             stmt.executeUpdate();
         }
