@@ -306,6 +306,12 @@
 
     <property name="dest" location="dest"/>
 
+    <path id="libs.jar">
+        <fileset dir="./libs">
+            <include name="**/*.jar" />
+        </fileset>
+    </path>
+
     <target name="dist" description="generate the distribution" depends="build.modules">
         <!-- Put everything in ${build} into the ${dest}/pdb.jar file -->
 
@@ -321,7 +327,8 @@
         </copy>
 
         <manifestclasspath property="lib.list" jarfile="${dest}/pdb.jar">
-            <classpath refid="library.libs.classpath"/>
+            <!--<classpath refid="library.libs.classpath"/>-->
+            <classpath refid="libs.jar" />
         </manifestclasspath>
 
         <jar jarfile="${dest}/bin/pdb.jar" basedir="${main.output.dir}">
