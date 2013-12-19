@@ -63,7 +63,8 @@ public class Main {
 
         JFrame frame = new JFrame("PDB");
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
+        temporalTabComponent = new TemporalTabComponent(ctx);
         tabbedPane.addTab("Spatial", new SpatialTabComponent(ctx).getContentPane());
         tabbedPane.addTab("Temporal", temporalTabComponent.getContentPane());
         tabbedPane.addTab("Multimedia", new MultimediaTabComponent(ctx).getContentPane());
