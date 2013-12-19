@@ -1,0 +1,5 @@
+xsalat00	100 %
+xprikr27	100 %
+xpracu00	100 %
+Vedoucím projektu je Marek Salát (xsalat00), vytvoøil kostru aplikace a pracoval s prostorovými daty.
+Michal Pracuch pracoval na multimediální èásti a Petr Pøikryl na temporální èásti.
