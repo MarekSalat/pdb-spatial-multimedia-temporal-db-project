@@ -15,6 +15,8 @@ import java.util.Iterator;
 * Date: 8.12.13
 * Time: 9:25
  *
+ * Trida popisujici objekt, se kterym se manipuluje na platne.
+ *
  * TODO: Split this class to Point manipulator, ellipse manipulator, circle manipulator, path/polygon manipulator
  * TODO: Hnusny kod! zrefaktorovat
 */

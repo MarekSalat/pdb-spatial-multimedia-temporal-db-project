@@ -19,6 +19,8 @@ import java.util.Date;
  * User: Marek Salát
  * Date: 8.12.13
  * Time: 14:13
+ *
+ * Formular pro editaci vlastnosti prostorovych entit.
  */
 public class SpatialEntityForm extends BaseFrame{
 

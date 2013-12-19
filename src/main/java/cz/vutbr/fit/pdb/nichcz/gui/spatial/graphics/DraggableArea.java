@@ -8,6 +8,8 @@ import java.awt.geom.Area;
 * User: Marek Salát
 * Date: 1.12.13
 * Time: 16:53
+ *
+ * Trida pro oblast, kterou je mozne oznacit, presunout a vykreslit.
 */
 public abstract class DraggableArea extends Area implements Draggable, Drawable, Selectable {
     protected AffineTransform at = new AffineTransform();

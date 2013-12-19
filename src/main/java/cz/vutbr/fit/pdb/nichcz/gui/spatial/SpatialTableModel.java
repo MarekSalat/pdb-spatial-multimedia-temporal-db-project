@@ -8,11 +8,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 14.12.13
  * Time: 19:24
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida modelu tabulky. Slouzi k mapovani entit z databaze do tabulky v GUI.
  */
 public class SpatialTableModel implements TableModel {
 

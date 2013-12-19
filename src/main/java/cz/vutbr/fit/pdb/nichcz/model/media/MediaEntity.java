@@ -10,7 +10,7 @@ import java.util.UUID;
  * Date: 6.12.13
  * Time: 16:24
  *
- * Trida popisujici reprezentujici entity z databaze.
+ * Trida reprezentujici entitu z multimedialni databaze.
  */
 
 /*

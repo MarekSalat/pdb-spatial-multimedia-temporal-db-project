@@ -20,6 +20,8 @@ import java.util.List;
  * User: Marek Salát
  * Date: 3.12.13
  * Time: 21:05
+ *
+ * Trida slouzi ke komunikaci s databazi.
  */
 public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
     private static final int SRID = 0;
@@ -57,6 +59,10 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
         return e;
     }
 
+    /**
+     * Vlozi entitu do databaze.
+     * @param e Entita pro vlozeni.
+     */
     public void insert(SpatialEntity e) {
         e.setCreated(new Date());
 
@@ -145,6 +151,12 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
         e.setModified(rset.getDate("modified"));
     }
 
+    /**
+     * Smaze temporalne.
+     * @param e Entita.
+     * @param from Datum od kdy.
+     * @param to Datum do kdy.
+     */
     public void temporalDelete(SpatialEntity e, Date from, Date to) {
         try {
             getConnection().setAutoCommit(false);
@@ -188,6 +200,10 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
         } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
     }
 
+    /**
+     * Aktualizuje temporalne.
+     * @param e Entita.
+     */
     public void temporalUpdate(SpatialEntity e) {
         try {
             getConnection().setAutoCommit(false);

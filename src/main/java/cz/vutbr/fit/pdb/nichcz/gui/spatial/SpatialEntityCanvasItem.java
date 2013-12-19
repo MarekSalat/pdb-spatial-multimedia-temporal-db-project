@@ -13,6 +13,8 @@ import java.awt.geom.Area;
 * User: Marek Salát
 * Date: 8.12.13
 * Time: 9:28
+ *
+ * Trida reprezentujici vykreslenou enitu na platne, se kterou je mozne pohybovat.
 */
 public class SpatialEntityCanvasItem extends DraggableArea {
 

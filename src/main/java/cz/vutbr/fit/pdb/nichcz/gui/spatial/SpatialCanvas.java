@@ -19,6 +19,11 @@ import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+/**
+ * User: Marek Salát
+ *
+ * Platno pro vykreslovani prostorovych entit.
+ */
 public class SpatialCanvas extends JPanel {
     public interface SelectedListener {
         void onSelected(SpatialEntity entity);

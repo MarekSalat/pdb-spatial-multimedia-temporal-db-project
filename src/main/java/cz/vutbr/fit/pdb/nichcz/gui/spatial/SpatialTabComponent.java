@@ -29,6 +29,8 @@ import java.beans.PropertyChangeListener;
  * User: Marek Salát
  * Date: 8.12.13
  * Time: 13:29
+ *
+ * Trida reprezentujici formular SpatialTabComponent pro zalozku hlavni aplikace.
  */
 public class SpatialTabComponent extends BaseFrame {
     private JPanel root;
@@ -50,6 +52,10 @@ public class SpatialTabComponent extends BaseFrame {
 
     private ArrayList<JCheckBox> checkBoxes;
 
+    /**
+     * Vytvori novy formular SpatialTabComponent pro zalozku hlavni aplikace.
+     * @param ctx Kontext s pripojenim na databazi.
+     */
     public SpatialTabComponent(Context ctx) {
         super(ctx);
         setContentPane(root);

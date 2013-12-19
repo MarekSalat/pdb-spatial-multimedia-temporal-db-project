@@ -3,6 +3,11 @@ package cz.vutbr.fit.pdb.nichcz.gui.spatial.graphics;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * User: Marek Salát
+ *
+ * Balik obsahujici objekty, ktere je mozne oznacit, presunout a vykreslit.
+ */
 public class DraggableContainer implements Serializable {
     public ArrayList<Drawable> drawables = new ArrayList<>();
     public ArrayList<Selectable> selectables = new ArrayList<>();

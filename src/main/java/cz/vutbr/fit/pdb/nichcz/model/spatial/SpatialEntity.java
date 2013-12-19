@@ -16,7 +16,10 @@ import java.util.UUID;
  * Date: 3.12.13
  * Time: 18:03
  *
+ * Trida reprezentujici entitu z prostorrove databaze.
+ */
 
+ /*
  DROP TABLE PDB_SPATIAL;
  CREATE TABLE PDB_SPATIAL
  (
@@ -47,7 +50,6 @@ import java.util.UUID;
  DROP INDEX pdb_spatial_geometry_sidx;
  CREATE INDEX pdb_spatial_geometry_sidx ON PDB_SPATIAL(GEOMETRY) INDEXTYPE IS MDSYS.SPATIAL_INDEX;
 
- *
  */
 public class SpatialEntity implements TemporalEntity<Long, Date, Date>{
     public static String TABLE="PDB_SPATIAL";
@@ -91,6 +93,9 @@ public class SpatialEntity implements TemporalEntity<Long, Date, Date>{
 
     public double specialField;
 
+    /**
+     * Vytvori novou SpatialEntity reprezentujici entitu z databaze.
+     */
     public SpatialEntity() {
         id = UUID.randomUUID().getMostSignificantBits();
         validFrom = new Date();
@@ -241,6 +246,11 @@ public class SpatialEntity implements TemporalEntity<Long, Date, Date>{
                 "}";
     }
 
+    /**
+     * Vytvori kopii entity.
+     * @param utils Utils.
+     * @return Vraci kopii entity.
+     */
     public SpatialEntity clone(Utils utils) {
         SpatialEntity entity = new SpatialEntity();
         entity.setId(getId());
