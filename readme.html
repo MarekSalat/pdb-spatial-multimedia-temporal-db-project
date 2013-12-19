@@ -7,12 +7,14 @@
 <body>
     <h1>Příručka ovládání aplikace do PDB</h1>
     <span>
-        Databáze se inicializuje spuštěním aplikace s parametrem -i nebo --init.<br>
+        Databáze se inicializuje spuštěním aplikace s parametrem -i nebo --init. Tato inicializace vytvoří tabulky a naplní je daty.<br>
     </span>
 
     <h2>Překlad a spuštění</h2>
     <span>
         Nejprve je nutné nastavit v souboru <code>build.properties</code> cestu k Java JDK (1.7).<br>
+        Dále je nutné stáhnout všechny potřebné knihovny z <a href="http://www.stud.fit.vutbr.cz/~xpracu00/libs.zip">
+        http://www.stud.fit.vutbr.cz/~xpracu00/libs.zip</a> a archiv rozbalit do hlavního adresáře projektu.<br>
         Pak je možný překlad pomocí nástroje Ant: spustit příkaz <code>ant</code> bez parametrů.<br>
         Pro spuštění aplikace: <code>ant run</code>.<br>
         Pro spuštění aplikace s inicializací databáze: <code>ant run_init</code>.<br>
