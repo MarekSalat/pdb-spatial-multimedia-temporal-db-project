@@ -146,14 +146,15 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
     }
 
     public void temporalDelete(SpatialEntity e, Date from, Date to) {
+        try {
+            getConnection().setAutoCommit(false);
+        } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
 
         Utils.MATCH_TYPE match;
         String where_ = " ID = '" + e.getId().toString()+"'";
 
         for (SpatialEntity entity : findWhere(where_)) {
             match = utils.findMatch(entity.getValidFrom(), entity.getValidTo(), from, to);
-
-            System.out.println(match);
 
             if (match == Utils.MATCH_TYPE.INSIDE) {
                 delete(entity);
@@ -180,17 +181,23 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
             }
 
         }
+
+        try {
+            getConnection().commit();
+            getConnection().setAutoCommit(true);
+        } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
     }
 
     public void temporalUpdate(SpatialEntity e) {
+        try {
+            getConnection().setAutoCommit(false);
+        } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
 
         Utils.MATCH_TYPE match;
         String where_ = " ID = '" + e.getId().toString()+"'";
 
         for (SpatialEntity entity : findWhere(where_)) {
             match = utils.findMatch(entity.getValidFrom(), entity.getValidTo(), e.getValidFrom(), e.getValidTo());
-
-            System.out.println(match);
 
             if (match == Utils.MATCH_TYPE.INSIDE) {
                 delete(entity);
@@ -220,6 +227,11 @@ public class SpatialDBMapper extends AbstractDBMapper<SpatialEntity, Long> {
 
         e.setModified(new Date());
         insert(e);
+
+        try {
+            getConnection().commit();
+            getConnection().setAutoCommit(true);
+        } catch (SQLException ex) { ex.printStackTrace(); throw new RuntimeException(ex);}
     }
 
     public void ordinaryUpdate(SpatialEntity e, String where) {

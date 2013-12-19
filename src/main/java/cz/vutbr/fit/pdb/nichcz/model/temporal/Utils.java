@@ -7,13 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Nich
- * Date: 13.12.13
- * Time: 19:34
- * To change this template use File | Settings | File Templates.
- */
+
 public class Utils {
 
     public Date infinity;

@@ -180,13 +180,6 @@ public class SpatialEntityForm extends BaseFrame{
 
     public void setData(SpatialEntity data) {
 
-        if (data != null) {
-            System.out.println(data.getValidTo());
-        }
-        else {
-            System.out.println("data is null");
-        }
-
         typeValue.setText(data != null ? data.getObjectType().toString() : "");
         nameTextField.setText(data != null ? data.getName() : "");
         adminTextField.setText(data != null ? data.getAdmin() : "");

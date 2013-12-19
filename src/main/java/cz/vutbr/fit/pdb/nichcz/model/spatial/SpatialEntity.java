@@ -1,6 +1,7 @@
 package cz.vutbr.fit.pdb.nichcz.model.spatial;
 
 import cz.vutbr.fit.pdb.nichcz.model.Entity;
+import cz.vutbr.fit.pdb.nichcz.model.temporal.DateUtils;
 import cz.vutbr.fit.pdb.nichcz.model.temporal.TemporalEntity;
 import cz.vutbr.fit.pdb.nichcz.model.temporal.Utils;
 
@@ -182,7 +183,7 @@ public class SpatialEntity implements TemporalEntity<Long, Date, Date>{
 
     @Override
     public void setValidFrom(Date validFrom) {
-        this.validFrom = validFrom;
+        this.validFrom = DateUtils.trim(validFrom);
     }
 
     @Override
@@ -192,7 +193,7 @@ public class SpatialEntity implements TemporalEntity<Long, Date, Date>{
 
     @Override
     public void setValidTo(Date validTo) {
-        this.validTo = validTo;
+        this.validTo = DateUtils.trim(validTo);
     }
 
     public Date getCreated() {

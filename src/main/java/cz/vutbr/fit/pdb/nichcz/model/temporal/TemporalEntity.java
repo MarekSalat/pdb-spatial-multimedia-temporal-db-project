@@ -3,6 +3,7 @@ package cz.vutbr.fit.pdb.nichcz.model.temporal;
 import cz.vutbr.fit.pdb.nichcz.model.Entity;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.

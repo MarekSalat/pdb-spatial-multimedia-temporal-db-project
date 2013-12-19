@@ -5,10 +5,7 @@ import cz.vutbr.fit.pdb.nichcz.gui.BaseFrame;
 import cz.vutbr.fit.pdb.nichcz.gui.Main;
 import cz.vutbr.fit.pdb.nichcz.gui.spatial.SpatialTableModel;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialDBMapper;
-import cz.vutbr.fit.pdb.nichcz.model.temporal.CompanyDBMapper;
-import cz.vutbr.fit.pdb.nichcz.model.temporal.CompanyEntity;
-import cz.vutbr.fit.pdb.nichcz.model.temporal.LoggingHistoryDBMapper;
-import cz.vutbr.fit.pdb.nichcz.model.temporal.LoggingHistoryEntity;
+import cz.vutbr.fit.pdb.nichcz.model.temporal.*;
 import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
@@ -47,19 +44,22 @@ public class TemporalTabComponent extends BaseFrame {
     private JButton updateLoggingHistory;
     private JTable loggingAreas;
     private JTextField loggingArea;
-    private JButton button1;
-    private JButton button2;
-    private JTable table4;
-    private JTable table5;
+    private JButton performQueryProduction;
+    private JButton performQuerySameLogers;
+    private JTable sameLogers;
+    private JTable production;
     private JXDatePicker companyValidFrom;
     private JXDatePicker companyValidTo;
     private JXDatePicker loggingHistoryValidFrom;
     private JXDatePicker loggingHistoryValidTo;
+    private JXDatePicker productionFrom;
+    private JXDatePicker productionTo;
 
     private CompanyDBMapper companyDBMapper;
     private SpatialDBMapper spatialDBMapper;
     private LoggingHistoryDBMapper loggingHistoryDBMapper;
 
+    private CompanyEntity selectedComboCompany = null;
     private CompanyEntity selectedCompany = null;
     private LoggingHistoryEntity selectedLoggingHistory = null;
 
@@ -70,10 +70,26 @@ public class TemporalTabComponent extends BaseFrame {
         spatialDBMapper = new SpatialDBMapper(ctx);
         loggingHistoryDBMapper = new LoggingHistoryDBMapper(ctx);
 
+        TemporalBound b = new TemporalBound();
+        b.column = "ID";
+        b.foreignColumn = "COMPANY_ID";
+        b.type = TemporalBound.TYPE.PRIMARY_KEY;
+        b.mapper = loggingHistoryDBMapper;
+        companyDBMapper.addBound(b);
+
+        TemporalBound b_ = new TemporalBound();
+        b_.column = "COMPANY_ID";
+        b_.foreignColumn = "ID";
+        b_.type = TemporalBound.TYPE.FOREIGN_KEY;
+        b_.mapper = companyDBMapper;
+        loggingHistoryDBMapper.addBound(b_);
+
         companyValidFrom.setFormats(DateFormat.getDateInstance());
         companyValidTo.setFormats(DateFormat.getDateInstance());
         loggingHistoryValidFrom.setFormats(DateFormat.getDateInstance());
         loggingHistoryValidTo.setFormats(DateFormat.getDateInstance());
+        productionFrom.setFormats(DateFormat.getDateInstance());
+        productionTo.setFormats(DateFormat.getDateInstance());
 
         addCompany.addActionListener(new ActionListener() {
             @Override
@@ -126,7 +142,7 @@ public class TemporalTabComponent extends BaseFrame {
             public void actionPerformed(ActionEvent actionEvent) {
                 LoggingHistoryEntity e = getLoggingHistory();
                 if (e == null) { return; }
-                loggingHistoryDBMapper.create(e);
+                loggingHistoryDBMapper.createWithBound(selectedComboCompany, e);
                 updateTables();
             }
         });
@@ -168,6 +184,31 @@ public class TemporalTabComponent extends BaseFrame {
                 e.setCompanyId((Long) loggingHistory.getModel().getValueAt(row, 6));
 
                 setLoggingHistory(e);
+            }
+        });
+
+        companyId.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                selectedComboCompany = (CompanyEntity) companyId.getSelectedItem();
+            }
+        });
+
+        performQuerySameLogers.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                SameLogersModel sameLogersModel = new SameLogersModel(loggingHistoryDBMapper.getSameLoggers());
+                sameLogers.setModel(sameLogersModel);
+            }
+        });
+
+        performQueryProduction.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                ProductionTableModel productionTableModel =
+                        new ProductionTableModel(loggingHistoryDBMapper.getProduction(productionFrom.getDate(),
+                                productionTo.getDate()));
+                production.setModel(productionTableModel);
             }
         });
     }
@@ -235,6 +276,7 @@ public class TemporalTabComponent extends BaseFrame {
         c.setValidTo(e.getValidTo());
 
         companyId.getModel().setSelectedItem(c);
+        companyId.repaint();
         loggingArea.setText(e.getLoggingArea());
         logsPerDay.setValue(e.getLogsPerDay());
         loggingHistoryValidFrom.setDate(e == null || e.getValidFrom() == null ? null : e.getValidFrom() );
@@ -256,6 +298,13 @@ public class TemporalTabComponent extends BaseFrame {
         }
         if (loggingHistoryValidFrom.getDate().getTime() >= loggingHistoryValidTo.getDate().getTime()) {
             JOptionPane.showMessageDialog(panel1, "Valid from must be lesser than valid to.", "Date error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (selectedComboCompany != null &&  (
+                selectedComboCompany.getValidFrom().getTime() > loggingHistoryValidFrom.getDate().getTime() ||
+                selectedComboCompany.getValidTo().getTime() < loggingHistoryValidTo.getDate().getTime() ))
+        {
+            JOptionPane.showMessageDialog(panel1, "On of dates is out of company valid range.", "Date error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;
@@ -280,7 +329,7 @@ public class TemporalTabComponent extends BaseFrame {
 
     private void updateLoggingHistoryTable() {
         LoggingHistoryTableModel loggingHistoryTableModel = new LoggingHistoryTableModel(loggingHistoryDBMapper.
-                findWhere(" 1=1 order by id asc, company_id asc, valid_from asc"));
+                findAll("id asc, company_id asc, valid_from asc"));
         loggingHistory.setModel(loggingHistoryTableModel);
         loggingHistory.removeColumn(loggingHistory.getColumnModel().getColumn(6));
     }

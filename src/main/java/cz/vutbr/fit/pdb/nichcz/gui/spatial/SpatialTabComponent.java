@@ -279,8 +279,6 @@ public class SpatialTabComponent extends BaseFrame {
             where += " AND ID = " + id;
         }
 
-        System.out.println(where);
-
         canvas.removeAllEntities();
         for(SpatialEntity entity : mapper.findWhere(where)){
             canvas.addEntityAsDraggable(entity);

@@ -1,7 +1,9 @@
 package cz.vutbr.fit.pdb.nichcz.model.temporal;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -53,11 +55,11 @@ public class LoggingHistoryEntity implements TemporalEntity<Long, Date, Date> {
 
     @Override
     public void setValidFrom(Date validFrom) {
-        this.validFrom = validFrom;
+        this.validFrom = DateUtils.trim(validFrom);
     }
     @Override
     public void setValidTo(Date validTo) {
-        this.validTo = validTo;
+        this.validTo = DateUtils.trim(validTo);
     }
 
     @Override
