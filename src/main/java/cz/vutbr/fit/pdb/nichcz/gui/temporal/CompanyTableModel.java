@@ -8,11 +8,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Prikryl
  * Date: 15.12.13
  * Time: 13:42
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida modelu tabulky pro zobrazeni spolecnosti.
  */
 public class CompanyTableModel implements TableModel {
 

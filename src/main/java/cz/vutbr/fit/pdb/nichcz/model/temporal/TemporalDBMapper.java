@@ -1,9 +1,6 @@
 package cz.vutbr.fit.pdb.nichcz.model.temporal;
 
 import cz.vutbr.fit.pdb.nichcz.context.Context;
-import cz.vutbr.fit.pdb.nichcz.model.AbstractDBMapper;
-import cz.vutbr.fit.pdb.nichcz.model.Entity;
-import cz.vutbr.fit.pdb.nichcz.model.Mapper;
 import cz.vutbr.fit.pdb.nichcz.services.impl.ConnectionService;
 
 import java.sql.Connection;
@@ -15,11 +12,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 16.12.13
  * Time: 19:35
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida slouzi ke komunikaci s databazi a umonuje pouziti temporalnich dotazu.
  */
 public abstract class TemporalDBMapper<E extends TemporalEntity, ID, VALID_FROM, VALID_TO> implements TemporalMapper<E, ID, VALID_FROM, VALID_TO> {
 

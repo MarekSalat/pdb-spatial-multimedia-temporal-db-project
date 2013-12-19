@@ -4,11 +4,11 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 13.12.13
  * Time: 19:34
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida pro staticke metody pracujici s java Date objektem.
  */
 
 public class DateUtils {

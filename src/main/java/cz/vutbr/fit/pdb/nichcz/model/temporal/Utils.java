@@ -1,13 +1,17 @@
 package cz.vutbr.fit.pdb.nichcz.model.temporal;
 
-import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialEntity;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
+/**
+ * User: Petr Přikryl
+ * Date: 6.10.13
+ * Time: 17:01
+ *
+ * Trida pro zakladni manipulaci s java Date objektem a pro jeho konvertovani do databazoveho formatu a zpet.
+ */
 public class Utils {
 
     public Date infinity;

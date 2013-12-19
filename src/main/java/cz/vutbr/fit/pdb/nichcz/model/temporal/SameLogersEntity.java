@@ -3,11 +3,11 @@ package cz.vutbr.fit.pdb.nichcz.model.temporal;
 import java.util.Date;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 19.12.13
  * Time: 0:03
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida pro reprezentaci spolecnosti, ktere tezi ve stejne casove periode ve stejne oblasti.
  */
 public class SameLogersEntity {
 

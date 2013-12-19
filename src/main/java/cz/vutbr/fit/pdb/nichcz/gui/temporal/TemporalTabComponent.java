@@ -2,33 +2,24 @@ package cz.vutbr.fit.pdb.nichcz.gui.temporal;
 
 import cz.vutbr.fit.pdb.nichcz.context.Context;
 import cz.vutbr.fit.pdb.nichcz.gui.BaseFrame;
-import cz.vutbr.fit.pdb.nichcz.gui.Main;
 import cz.vutbr.fit.pdb.nichcz.gui.spatial.SpatialTableModel;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialDBMapper;
 import cz.vutbr.fit.pdb.nichcz.model.temporal.*;
 import org.jdesktop.swingx.JXDatePicker;
-// import net.sourceforge.jdatepicker.JDatePicker;
 
 import javax.swing.*;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.text.DateFormat;
 import java.util.Date;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 15.12.13
  * Time: 2:44
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida reprezentujici formular TemporalTabComponent pro zalozku hlavni aplikace.
  */
 public class TemporalTabComponent extends BaseFrame {
     private JPanel panel1;

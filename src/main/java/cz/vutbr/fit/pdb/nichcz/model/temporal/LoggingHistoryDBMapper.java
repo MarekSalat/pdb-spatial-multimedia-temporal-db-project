@@ -10,11 +10,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 16.12.13
  * Time: 23:10
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida pro komunikaci s databazi. Umoznuje temporalni dotazy.
  */
 public class LoggingHistoryDBMapper extends TemporalDBMapper<LoggingHistoryEntity, Long, Date, Date> {
 
@@ -146,7 +146,7 @@ public class LoggingHistoryDBMapper extends TemporalDBMapper<LoggingHistoryEntit
         e.setFirstCompany(rset.getString("company_name_1"));
         e.setSecondCompany(rset.getString("company_name_2"));
         e.setFirstLoggsPerDay(rset.getInt("company_1_loggs_per_day"));
-        e.setSecondLoggsPerDay(rset.getInt("company_1_loggs_per_day"));
+        e.setSecondLoggsPerDay(rset.getInt("company_2_loggs_per_day"));
         e.setFirstValidFrom(utils.daysToDate(rset.getLong("company_1_valid_from")));
         e.setSecondValidFrom(utils.daysToDate(rset.getLong("company_2_valid_from")));
         e.setFirstValidTo(utils.daysToDate(rset.getLong("company_1_valid_to")));

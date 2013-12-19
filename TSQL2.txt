@@ -1,0 +1,39 @@
+-- Zobrazení entit na mapě
+SELECT SNAPSHOP * FROM PDB_SPATIAL
+WHERE VALID(PDB_SPATIAL);
+
+-- Zobrazení seznamu entit
+SELECT * FROM PDB_SPATIAL(ID);
+
+-- Produkce
+select c.name, avg(h.logs_sum) as logs_avg
+from pdb_company c, (
+    select company_id, (valid_to - valid_from) * logs_per_day as logs_sum
+    from pdb_logging_history
+    valid period [from - to]
+) h
+where c.id = h.company_id valid period [from - to]
+group by c.id, c.name
+order by logs_avg desc;
+
+-- Těžba ve stejných oblastích ve stejné periodě
+select h1.logging_area,
+c1.name as company_name_1, c2.name as company_name_2,
+h1.logs_per_day as company_1_loggs_per_day, h2.logs_per_day as company_2_loggs_per_day,
+h1.valid_from as company_1_valid_from, h2.valid_from as company_2_valid_from,
+h1.valid_to as company_1_valid_to, h2.valid_to as company_2_valid_to
+from pdb_company c1, pdb_company c2, pdb_logging_history h1, pdb_logging_history h2
+where c1.id <> c2.id
+and c1 contains c2
+and h1.logging_area = h2.logging_area
+and h1 contains c1
+and h2 contains c2;
+
+-- Aktualizace společnosti
+UPDATE PDB_COMPANY
+SET NAME = <NAME>
+WHERE ID=<ID> VALID PERIOD [FROM - TO];
+
+-- Samazaní společnosti
+DELETE FROM PDB_COMPANY
+WHERE ID=<ID> VALID PERIOD [FROM - TO];

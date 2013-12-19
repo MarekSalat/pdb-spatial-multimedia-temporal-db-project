@@ -1,7 +1,6 @@
 package cz.vutbr.fit.pdb.nichcz.model.temporal;
 
 import cz.vutbr.fit.pdb.nichcz.context.Context;
-import cz.vutbr.fit.pdb.nichcz.model.AbstractDBMapper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,11 +10,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 15.12.13
  * Time: 13:35
- * To change this template use File | Settings | File Templates.
+ *
+ * Trika ke komunikaci s databazi. Umoznuje temporalni dotazy.
  */
 public class CompanyDBMapper extends TemporalDBMapper<CompanyEntity, Long, Date, Date> {
 
