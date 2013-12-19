@@ -7,6 +7,7 @@ import cz.vutbr.fit.pdb.nichcz.gui.spatial.SpatialTableModel;
 import cz.vutbr.fit.pdb.nichcz.model.spatial.SpatialDBMapper;
 import cz.vutbr.fit.pdb.nichcz.model.temporal.*;
 import org.jdesktop.swingx.JXDatePicker;
+// import net.sourceforge.jdatepicker.JDatePicker;
 
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
