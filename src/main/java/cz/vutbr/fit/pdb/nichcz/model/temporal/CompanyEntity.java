@@ -1,28 +1,25 @@
 package cz.vutbr.fit.pdb.nichcz.model.temporal;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 15.12.13
  * Time: 13:27
- * To change this template use File | Settings | File Templates.
  *
+ * Trida pro reprezentaci spolecnosti.
+ */
+
+/*
  CREATE TABLE PDB_COMPANY (
  ID VARCHAR(64),
  NAME VARCHAR(100),
  VALID_FROM NUMBER(20),
  VALID_TO NUMBER(20)
  );
- *
  */
-
-
 public class CompanyEntity implements TemporalEntity<Long, Date, Date> {
 
     public static String TABLE="PDB_COMPANY";

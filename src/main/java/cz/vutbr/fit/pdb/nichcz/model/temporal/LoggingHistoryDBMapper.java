@@ -10,11 +10,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 16.12.13
  * Time: 23:10
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida pro komunikaci s databazi. Umoznuje temporalni dotazy.
  */
 public class LoggingHistoryDBMapper extends TemporalDBMapper<LoggingHistoryEntity, Long, Date, Date> {
 

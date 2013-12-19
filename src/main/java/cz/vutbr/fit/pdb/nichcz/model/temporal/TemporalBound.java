@@ -1,11 +1,11 @@
 package cz.vutbr.fit.pdb.nichcz.model.temporal;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 17.12.13
  * Time: 23:30
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida pro definovani temporalnich vazeb mezi tabulky.
  */
 public class TemporalBound {
     public enum TYPE {

@@ -1,18 +1,18 @@
 package cz.vutbr.fit.pdb.nichcz.model.temporal;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 16.12.13
  * Time: 23:00
- * To change this template use File | Settings | File Templates.
  *
+ * Trida pro reprezentaci historie tezby spolecnosti v urcite casove periode.
+ */
+
+/*
  CREATE TABLE PDB_LOGGING_HISTORY (
      ID VARCHAR(64),
      COMPANY_ID VARCHAR(64),
@@ -22,8 +22,6 @@ import java.util.UUID;
      VALID_FROM NUMBER(20),
      VALID_TO NUMBER(20)
  );
-
-
  */
 public class LoggingHistoryEntity implements TemporalEntity<Long, Date, Date> {
     public static String TABLE="PDB_LOGGING_HISTORY";

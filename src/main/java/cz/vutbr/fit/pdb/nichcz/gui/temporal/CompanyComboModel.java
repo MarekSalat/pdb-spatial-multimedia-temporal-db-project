@@ -4,16 +4,14 @@ import cz.vutbr.fit.pdb.nichcz.model.temporal.CompanyEntity;
 
 import javax.swing.*;
 import javax.swing.event.ListDataListener;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import java.awt.*;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 16.12.13
  * Time: 23:53
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida modelu pro combo zobrazujici seznam spolecnosti.
  */
 public class CompanyComboModel implements ComboBoxModel<CompanyEntity> {
 

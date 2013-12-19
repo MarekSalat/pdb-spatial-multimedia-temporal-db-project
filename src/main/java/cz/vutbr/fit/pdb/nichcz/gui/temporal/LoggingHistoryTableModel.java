@@ -8,11 +8,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Prikryl
  * Date: 16.12.13
  * Time: 23:21
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida modelu pro tabulku zobrazujici historii tezby spolecnosti.
  */
 public class LoggingHistoryTableModel implements TableModel {
 

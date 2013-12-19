@@ -7,11 +7,11 @@ import javax.swing.table.TableModel;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikry
  * Date: 19.12.13
  * Time: 1:20
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida modelu pro tabulku zobrazujici produkci jednotlivych spolecnosti.
  */
 public class ProductionTableModel implements TableModel {
 

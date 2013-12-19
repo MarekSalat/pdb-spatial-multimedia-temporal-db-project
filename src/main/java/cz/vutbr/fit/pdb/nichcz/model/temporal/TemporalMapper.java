@@ -3,11 +3,11 @@ package cz.vutbr.fit.pdb.nichcz.model.temporal;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 16.12.13
  * Time: 19:42
- * To change this template use File | Settings | File Templates.
+ *
+ * Rozhrani pro temporalni dotazovani nad databazi.
  */
 public interface TemporalMapper <E extends TemporalEntity, ID, VALID_FROM, VALID_TO> {
     public void create(E entity);

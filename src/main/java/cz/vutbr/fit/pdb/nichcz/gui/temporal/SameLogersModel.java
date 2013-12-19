@@ -6,15 +6,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Nich
+ * User: Petr Přikryl
  * Date: 19.12.13
  * Time: 0:25
- * To change this template use File | Settings | File Templates.
+ *
+ * Trida modelu pro tabulku zobrazujici spolecnosti, ktere tezi ve stejne oblasti ve stejne casove periode.
  */
 public class SameLogersModel implements TableModel {
 
